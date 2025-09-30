@@ -1,0 +1,21 @@
+# Maven direktorijumi i fajlovi
+target/
+pom.xml.tag
+pom.xml.versionsBackup
+pom.xml.releaseBackup
+
+# IDE fajlovi
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+nbproject/
+.classpath
+.project
+.settings/
+
+# Ostali fajlovi
+*.log
+*.jar
+*.war
