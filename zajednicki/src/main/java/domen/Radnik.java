@@ -19,11 +19,12 @@ public class Radnik implements Serializable, OpstiDomenskiObjekat {
     }
 
     public Radnik(int idRadnik, String ime, String prezime, String korisnickoIme, String lozinka, String brojTelefona) {
-        this.idRadnik = idRadnik;
-        this.ime = ime;
-        this.prezime = prezime;
-        this.korisnickoIme = korisnickoIme;
-        this.brojTelefona = brojTelefona;
+        setIdRadnik(idRadnik);
+        setIme(ime);
+        setPrezime(prezime);
+        setKorisnickoIme(korisnickoIme);
+        setLozinka(lozinka);
+        setBrojTelefona(brojTelefona);
     }
 
     public int getIdRadnik() {
@@ -119,12 +120,15 @@ public class Radnik implements Serializable, OpstiDomenskiObjekat {
         if (korisnickoIme != null && !korisnickoIme.isEmpty() && lozinka != null && !lozinka.isEmpty()) {
             return "r.korisnickoIme = '" + korisnickoIme + "' AND r.lozinka = '" + lozinka + "'";
         }
+
         if (ime != null && !ime.isEmpty()) {
             return "r.ime LIKE '%" + ime + "%'";
         }
+
         if (prezime != null && !prezime.isEmpty()) {
             return "r.prezime LIKE '%" + prezime + "%'";
         }
+
         return "";
     }
 

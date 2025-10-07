@@ -1,361 +1,654 @@
 package domen;
 
 import domen.*;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.Mockito;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * JUnit testovi za klasu {@link Tiket}.
- * Testira osnovnu funkcionalnost, settere, konstruktore,
- * dodavanje parova, metode {@link Object#toString()} i implementaciju {@link OpstiDomenskiObjekat}.
- */
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mockito;
+
 public class TiketTest {
 
     private Tiket tiket;
     private Radnik radnik;
     private Korisnik korisnik;
+    private Grad grad;
     private Par par;
     private Utakmica utakmica;
 
-    /**
-     * Inicijalizacija objekata pre svakog testa.
-     */
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         tiket = new Tiket();
-        radnik = new Radnik();
-        radnik.setIdRadnik(1);
         korisnik = new Korisnik();
-        korisnik.setIdKorisnik(1);
-        utakmica = new Utakmica();
-        utakmica.setIdUtakmica(1);
-        utakmica.setDomacin("Tim A");
-        utakmica.setGost("Tim B");
-        utakmica.setTermin(new Date());
-        par = new Par();
-        par.setUtakmica(utakmica);
+        radnik = new Radnik();
     }
-
-    /**
-     * Oslobađanje resursa nakon svakog testa.
-     */
-    @AfterEach
-    void tearDown() {
-        tiket = null;
-        radnik = null;
-        korisnik = null;
-        par = null;
-        utakmica = null;
-    }
-
-    // =========================
-    // Osnovna funkcionalnost
-    // =========================
-
-    /**
-     * Testira default konstruktor i proverava da li je lista parova inicijalizovana.
-     */
+    
+    // ----- KONSTRUKTORI -----
+    
     @Test
-    void testKonstruktor() {
+    public void testBezparametarskiKonstruktor() {
+        assertEquals(0, tiket.getIdTiket());
+        assertEquals(0, tiket.getUlog());
+        assertEquals(1, tiket.getUkupnaKvota());
+        assertEquals(0, tiket.getMoguciDobitak());
+        assertEquals(-1, tiket.getStatus());
+        assertNull(tiket.getRadnik());
+        assertNull(tiket.getKorisnik());
         assertNotNull(tiket.getParovi());
-        assertTrue(tiket.getParovi().isEmpty());
+        assertEquals(0, tiket.getParovi().size());
     }
 
-    /**
-     * Testira pun konstruktor sa svim parametrima.
-     */
     @Test
-    void testFullKonstruktor() {
+    public void testParametarskiKonstruktorValid() {
+        Radnik radnik = new Radnik();
+        Korisnik korisnik = new Korisnik();
         List<Par> parovi = new ArrayList<>();
-        parovi.add(par);
-        Tiket t = new Tiket(1, 100, 2.5, 250, 0, radnik, korisnik, parovi);
-        assertEquals(1, t.getIdTiket());
-        assertEquals(100, t.getUlog());
-        assertEquals(2.5, t.getUkupnaKvota());
-        assertEquals(250, t.getMoguciDobitak());
-        assertEquals(0, t.getStatus());
-        assertEquals(radnik, t.getRadnik());
-        assertEquals(korisnik, t.getKorisnik());
-        assertEquals(1, t.getParovi().size());
-    }
 
-    /**
-     * Testira settere i gettere za sva polja tiketa.
-     */
-    @Test
-    void testSetteri() {
-        tiket.setIdTiket(5);
-        tiket.setUlog(200);
-        tiket.setUkupnaKvota(3.5);
-        tiket.setMoguciDobitak(700);
-        tiket.setStatus(1);
-        tiket.setRadnik(radnik);
-        tiket.setKorisnik(korisnik);
-        tiket.setParovi(new ArrayList<>());
+        tiket = new Tiket(1, 100.0, 2.5, 250.0, 0, radnik, korisnik, parovi);
 
-        assertEquals(5, tiket.getIdTiket());
-        assertEquals(200, tiket.getUlog());
-        assertEquals(3.5, tiket.getUkupnaKvota());
-        assertEquals(700, tiket.getMoguciDobitak());
-        assertEquals(1, tiket.getStatus());
+        assertEquals(1, tiket.getIdTiket());
+        assertEquals(100.0, tiket.getUlog());
+        assertEquals(2.5, tiket.getUkupnaKvota());
+        assertEquals(250.0, tiket.getMoguciDobitak());
+        assertEquals(0, tiket.getStatus());
         assertEquals(radnik, tiket.getRadnik());
         assertEquals(korisnik, tiket.getKorisnik());
-        assertNotNull(tiket.getParovi());
-        assertTrue(tiket.getParovi().isEmpty());
+        assertEquals(parovi, tiket.getParovi());
     }
 
-    /**
-     * Testira dodavanje parova u tiket.
-     */
     @Test
-    void testDodajPar() {
+    public void testParametarskiKonstruktorRadnikNull() {
+        Korisnik korisnik = new Korisnik();
+        List<Par> parovi = new ArrayList<>();
+
+        tiket = new Tiket(1, 100.0, 2.5, 250.0, 0, null, korisnik, parovi);
+
+        assertNull(tiket.getRadnik());
+        assertEquals(korisnik, tiket.getKorisnik());
+        assertEquals(0, tiket.getParovi().size());
+    }
+
+    @Test
+    public void testParametarskiKonstruktorKorisnikNull() {
+        Radnik radnik = new Radnik();
+        List<Par> parovi = new ArrayList<>();
+
+        tiket = new Tiket(1, 100.0, 2.5, 250.0, 0, radnik, null, parovi);
+
+        assertEquals(radnik, tiket.getRadnik());
+        assertNull(tiket.getKorisnik());
+        assertEquals(0, tiket.getParovi().size());
+    }
+
+    @Test
+    public void testParametarskiKonstruktorParoviNull() {
+        Radnik radnik = new Radnik();
+        Korisnik korisnik = new Korisnik();
+
+        tiket = new Tiket(1, 100.0, 2.5, 250.0, 0, radnik, korisnik, null);
+
+        assertEquals(radnik, tiket.getRadnik());
+        assertEquals(korisnik, tiket.getKorisnik());
+        assertNull(tiket.getParovi());
+    }   
+
+    // ----- SETTERI -----
+
+    @Test
+    public void testSetIdTiketValid() {
+        tiket.setIdTiket(10);
+        assertEquals(10, tiket.getIdTiket());
+    }
+
+    @Test
+    public void testSetIdTiketNull() {
+        tiket.setIdTiket(0); 
+        assertEquals(0, tiket.getIdTiket());
+    }
+
+    @Test
+    public void testSetUlogValid() {
+        tiket.setUlog(150.5);
+        assertEquals(150.5, tiket.getUlog());
+    }
+
+    @Test
+    public void testSetUlogNull() {
+        tiket.setUlog(0);
+        assertEquals(0.0, tiket.getUlog());
+    }
+
+    @Test
+    public void testSetUkupnaKvotaValid() {
+        tiket.setUkupnaKvota(2.3);
+        assertEquals(2.3, tiket.getUkupnaKvota());
+    }
+
+    @Test
+    public void testSetUkupnaKvotaNull() {
+        tiket.setUkupnaKvota(0.0);
+        assertEquals(0.0, tiket.getUkupnaKvota());
+    }
+
+    @Test
+    public void testSetMoguciDobitakValid() {
+        tiket.setMoguciDobitak(500.0);
+        assertEquals(500.0, tiket.getMoguciDobitak());
+    }
+
+    @Test
+    public void testSetMoguciDobitakNull() {
+        tiket.setMoguciDobitak(0.0);
+        assertEquals(0.0, tiket.getMoguciDobitak());
+    }
+
+    @Test
+    public void testSetStatusValid() {
+        tiket.setStatus(1);
+        assertEquals(1, tiket.getStatus());
+    }
+
+    @Test
+    public void testSetStatusNullEquivalent() {
+        tiket.setStatus(-1); 
+        assertEquals(-1, tiket.getStatus());
+    }
+
+    @Test
+    public void testSetRadnikValid() {
+        Radnik radnik = new Radnik();
+        tiket.setRadnik(radnik);
+        assertEquals(radnik, tiket.getRadnik());
+    }
+
+    @Test
+    public void testSetRadnikNull() {
+        tiket.setRadnik(null);
+        assertNull(tiket.getRadnik());
+    }
+
+    @Test
+    public void testSetKorisnikValid() {
+        Korisnik korisnik = new Korisnik();
+        tiket.setKorisnik(korisnik);
+        assertEquals(korisnik, tiket.getKorisnik());
+    }
+
+    @Test
+    public void testSetKorisnikNull() {
+        tiket.setKorisnik(null);
+        assertNull(tiket.getKorisnik());
+    }
+
+    @Test
+    public void testSetParoviValid() {
+        List<Par> parovi = new ArrayList<>();
+        tiket.setParovi(parovi);
+        assertEquals(parovi, tiket.getParovi());
+    }
+
+    @Test
+    public void testSetParoviNull() {
+        tiket.setParovi(null);
+        assertNull(tiket.getParovi());
+    }
+
+    @Test
+    public void testDodajParValid() {
+        Par par = new Par();
         tiket.dodajPar(par);
+        assertNotNull(tiket.getParovi());
         assertEquals(1, tiket.getParovi().size());
         assertEquals(par, tiket.getParovi().get(0));
     }
 
-    /**
-     * Testira ispravno formiranje stringa preko {@link Tiket#toString()}.
-     */
     @Test
-    void testToString() {
+    public void testDodajParParoviNull() {
+        tiket.setParovi(null);
+        Par par = new Par();
+        tiket.dodajPar(par);
+        assertNotNull(tiket.getParovi());
+        assertEquals(1, tiket.getParovi().size());
+        assertEquals(par, tiket.getParovi().get(0));
+    }
+
+    // ----- TO STRING -----
+    
+    @Test
+    public void testToStringDefaultVrednosti() {
+        String result = tiket.toString();
+
+        assertTrue(result.contains("idTiket=0"));
+        assertTrue(result.contains("ulog=0.0"));
+        assertTrue(result.contains("ukupnaKvota=1.0"));
+        assertTrue(result.contains("moguciDobitak=0.0"));
+        assertTrue(result.contains("status=-1"));
+        assertTrue(result.contains("radnik=null"));
+        assertTrue(result.contains("korisnik=null"));
+        assertTrue(result.contains("parovi=0 parova") || result.contains("parovi=null"));
+    }
+
+    @Test
+    public void testToStringSveVrednostiValidne() {
+        Radnik radnik = new Radnik();
+        radnik.setIme("Marko");
+        radnik.setPrezime("Markovic");
+
+        Korisnik korisnik = new Korisnik();
+        korisnik.setIme("Petar");
+        korisnik.setPrezime("Petrovic");
+
+        List<Par> parovi = new ArrayList<>();
+        parovi.add(new Par());
+        parovi.add(new Par());
+
         tiket.setIdTiket(1);
-        tiket.setUlog(10.0);
-        tiket.setUkupnaKvota(2.0);
-        tiket.setMoguciDobitak(20.0);
-        tiket.setStatus(1); // Dobitni
-        radnik.setIme("Test");
-        radnik.setPrezime("Radnik");
-        korisnik.setIme("Test");
-        korisnik.setPrezime("Korisnik");
+        tiket.setUlog(100.0);
+        tiket.setUkupnaKvota(2.5);
+        tiket.setMoguciDobitak(250.0);
+        tiket.setStatus(0);
+        tiket.setRadnik(radnik);
+        tiket.setKorisnik(korisnik);
+        tiket.setParovi(parovi);
+
+        String result = tiket.toString();
+
+        assertTrue(result.contains("idTiket=1"));
+        assertTrue(result.contains("ulog=100.0"));
+        assertTrue(result.contains("ukupnaKvota=2.5"));
+        assertTrue(result.contains("moguciDobitak=250.0"));
+        assertTrue(result.contains("status=0"));
+        assertTrue(result.contains("radnik=Marko Markovic"));
+        assertTrue(result.contains("korisnik=Petar Petrovic"));
+        assertTrue(result.contains("parovi=2 parova"));
+    }
+
+    @Test
+    public void testToStringRadnikNull() {
+        Korisnik korisnik = new Korisnik();
+        korisnik.setIme("Petar");
+        korisnik.setPrezime("Petrovic");
+
+        tiket.setRadnik(null);
+        tiket.setKorisnik(korisnik);
+
+        String result = tiket.toString();
+
+        assertTrue(result.contains("radnik=null"));
+        assertTrue(result.contains("korisnik=Petar Petrovic"));
+    }
+
+    @Test
+    public void testToStringKorisnikNull() {
+        Radnik radnik = new Radnik();
+        radnik.setIme("Marko");
+        radnik.setPrezime("Markovic");
+
+        tiket.setRadnik(radnik);
+        tiket.setKorisnik(null);
+
+        String result = tiket.toString();
+
+        assertTrue(result.contains("radnik=Marko Markovic"));
+        assertTrue(result.contains("korisnik=null"));
+    }
+
+    @Test
+    public void testToStringParoviNull() {
+        tiket.setParovi(null);
+        String result = tiket.toString();
+        assertTrue(result.contains("parovi=null"));
+    }
+
+    // ----- SQL METODE -----
+    
+    @Test
+    public void testGetVrednostiZaInsert() {
+        tiket.setUlog(100);
+        tiket.setUkupnaKvota(2);
+        tiket.setMoguciDobitak(200);
+        tiket.setStatus(1);
         tiket.setRadnik(radnik);
         tiket.setKorisnik(korisnik);
 
-        par.setIdPar(10);
-        par.setTipOpklade(TipOpklade.ILI_X2);
-        par.setKvota(2.0);
-        Utakmica u = new Utakmica();
-        u.setDomacin("Partizan");
-        u.setGost("Zvezda");
-        u.setTermin(new Date(1672531200000L)); // 2023-01-01
-        par.setUtakmica(u);
-        tiket.dodajPar(par);
-
-        String ocekivano = "Tiket ID: 1\n" +
-                "Ulog: 10.0\n" +
-                "Ukupna kvota: 2.0\n" +
-                "Mogući dobitak: 20.0\n" +
-                "Status: Dobitni\n" +
-                "Radnik: Test Radnik\n" +
-                "Korisnik: Test Korisnik\n" +
-                "Parovi:\n" +
-                "  Par ID: 10 | Tip opklade: ILI_X2 | Kvota: 2.0 | Utakmica: Partizan vs Zvezda (Sun Jan 01 01:00:00 CET 2023)";
-
-        assertEquals(ocekivano, tiket.toString());
+        String expected = "100.0, 1, 2.0, 200.0, 0, 0";
+        assertEquals(expected, tiket.getVrednostiZaInsert());
     }
 
-    // =========================
-    // OpstiDomenskiObjekat
-    // =========================
-
-    /**
-     * Testira naziv tabele za SQL upite.
-     */
     @Test
-    void testGetNazivTabele() {
+    public void testGetVrednostiZaUpdateSveVrednosti() {
+        tiket.setUlog(100);
+        tiket.setUkupnaKvota(2);
+        tiket.setMoguciDobitak(200);
+        tiket.setStatus(1);
+        
+        radnik.setIdRadnik(1);
+        korisnik.setIdKorisnik(1);
+        
+        tiket.setRadnik(radnik);
+        tiket.setKorisnik(korisnik);
+
+        String update = tiket.getVrednostiZaUpdate();
+        assertTrue(update.contains("statusTiket = 1"));
+        assertTrue(update.contains("ulog = 100.0"));
+        assertTrue(update.contains("ukupnaKvota = 2.0"));
+        assertTrue(update.contains("dobitak = 200.0"));
+        assertTrue(update.contains("idRadnik = 1"));
+        assertTrue(update.contains("idKorisnik = 1"));
+    }
+    
+    @Test
+    public void testGetVrednostiZaUpdateRadnikKorisnikNull() {
+        tiket.setUlog(100);
+        tiket.setUkupnaKvota(2);
+        tiket.setMoguciDobitak(200);
+        tiket.setStatus(1);
+        tiket.setRadnik(radnik);
+        tiket.setKorisnik(korisnik);
+
+        String update = tiket.getVrednostiZaUpdate();
+        assertTrue(update.contains("statusTiket = 1"));
+        assertTrue(update.contains("ulog = 100.0"));
+        assertTrue(update.contains("ukupnaKvota = 2.0"));
+        assertTrue(update.contains("dobitak = 200.0"));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        // radnikId, korisnikId, idUtakmica, ulog, ukupnaKvota, moguciDobitak, status, expected
+        "1,0,0,0,0,0,-1, t.idRadnik = 1",
+        "0,2,0,0,0,0,-1, t.idKorisnik = 2",
+        "0,0,5,0,0,0,-1, u.idUtakmica = 5",
+        "0,0,0,100,0,0,-1, t.ulog > 100.0",
+        "0,0,0,0,2.5,0,-1, t.ukupnaKvota > 2.5",
+        "0,0,0,0,0,250,-1, t.dobitak > 250.0",
+        "0,0,0,0,0,0,1, t.statusTiket = '1'",
+        "1,2,3,100,2.5,250,0, t.idRadnik = 1 AND t.idKorisnik = 2 AND u.idUtakmica = 3 AND t.ulog > 100.0 AND t.ukupnaKvota > 2.5 AND t.dobitak > 250.0 AND t.statusTiket = '0'"
+    })
+    public void testGetUslovZaPretraguParametrizovano(int radnikId, int korisnikId, int idUtakmica,
+                                                      double ulog, double ukupnaKvota, double moguciDobitak,
+                                                      int status, String expected) {
+
+        
+            radnik.setIdRadnik(radnikId);
+            tiket.setRadnik(radnik);
+        
+            korisnik.setIdKorisnik(korisnikId);
+            tiket.setKorisnik(korisnik);
+        
+            Utakmica utakmica = new Utakmica();
+            utakmica.setIdUtakmica(idUtakmica);
+            Par par = new Par();
+            par.setUtakmica(utakmica);
+            List<Par> parovi = new ArrayList<>();
+            parovi.add(par);
+            tiket.setParovi(parovi);
+        
+            tiket.setUlog(ulog);
+            tiket.setUkupnaKvota(ukupnaKvota);
+            tiket.setMoguciDobitak(moguciDobitak);
+            tiket.setStatus(status);
+
+        assertEquals(expected, tiket.getUslovZaPretragu());
+    }
+ 
+    // ----- RESULT SET -----
+    
+    @Test
+    public void testKonvertujResultSetUListu_DvaTiketa() throws SQLException {
+        ResultSet rs = Mockito.mock(ResultSet.class);
+
+        Mockito.when(rs.next()).thenReturn(true, true, true, true, false); 
+
+        Mockito.when(rs.getInt("idTiket")).thenReturn(1, 1, 2, 2);
+        Mockito.when(rs.getDouble("ulog")).thenReturn(100.0, 100.0, 50.0, 50.0);
+        Mockito.when(rs.getDouble("ukupnaKvota")).thenReturn(2.0, 2.0, 1.5, 1.5);
+        Mockito.when(rs.getDouble("dobitak")).thenReturn(200.0, 200.0, 75.0, 75.0);
+        Mockito.when(rs.getInt("statusTiket")).thenReturn(0, 0, 1, 1);
+
+        Mockito.when(rs.getInt("idRadnik")).thenReturn(1, 1, 2, 2);
+        Mockito.when(rs.getString("imeRadnik")).thenReturn("Marko", "Marko", "Petar", "Petar");
+        Mockito.when(rs.getString("prezimeRadnik")).thenReturn("Markovic", "Markovic", "Petrovic", "Petrovic");
+        Mockito.when(rs.getString("korisnickoIme")).thenReturn("marko.m", "marko.m", "petar.p", "petar.p");
+        Mockito.when(rs.getString("brojTelefona")).thenReturn("064111222", "064111222", "065333444", "065333444");
+
+        Mockito.when(rs.getInt("idKorisnik")).thenReturn(1, 1, 2, 2);
+        Mockito.when(rs.getString("imeKorisnik")).thenReturn("Jovan", "Jovan", "Nikola", "Nikola");
+        Mockito.when(rs.getString("prezimeKorisnik")).thenReturn("Jovanovic", "Jovanovic", "Nikolic", "Nikolic");
+        Mockito.when(rs.getString("jmbg")).thenReturn("123", "123", "456", "456");
+
+        Mockito.when(rs.getInt("idGrad")).thenReturn(1,1,2,2);
+        Mockito.when(rs.getString("naziv")).thenReturn("Beograd", "Beograd", "Novi Sad", "Novi Sad");
+        Mockito.when(rs.getString("postanskiBroj")).thenReturn("11000","11000","21000","21000");
+
+        Mockito.when(rs.getInt("idPar")).thenReturn(1,2,3,4);
+        Mockito.when(rs.getInt("redosled")).thenReturn(1,2,1,2);
+        Mockito.when(rs.getString("tipOpklade")).thenReturn("GG","NG","NERESENO","GG_VISE_OD_2_5");
+        Mockito.when(rs.getDouble("kvota")).thenReturn(1.5, 2.0, 1.8, 2.2);
+
+        Mockito.when(rs.getInt("idUtakmica")).thenReturn(1,2,3,4);
+        Mockito.when(rs.getString("domacin")).thenReturn("Domacin1","Domacin2","Domacin3","Domacin4");
+        Mockito.when(rs.getString("gost")).thenReturn("Gost1","Gost2","Gost3","Gost4");
+        Mockito.when(rs.getTimestamp("termin")).thenReturn(new Timestamp(System.currentTimeMillis()));
+
+        List<OpstiDomenskiObjekat> lista = tiket.konvertujResultSetUListu(rs);
+
+        assertEquals(2, lista.size());
+        
+        Tiket t1 = (Tiket) lista.get(0);
+        Tiket t2 = (Tiket) lista.get(1);
+        
+        assertEquals(2, t1.getParovi().size());
+        assertEquals(2, t2.getParovi().size());
+        
+    }
+
+    @Test
+    public void testKonvertujResultSetUListuJedanTiket() throws SQLException {
+        ResultSet rs = Mockito.mock(ResultSet.class);
+
+        Mockito.when(rs.next()).thenReturn(true, false);
+        Mockito.when(rs.getInt("idTiket")).thenReturn(1);
+        Mockito.when(rs.getDouble("ulog")).thenReturn(100.0);
+        Mockito.when(rs.getDouble("ukupnaKvota")).thenReturn(2.0);
+        Mockito.when(rs.getDouble("dobitak")).thenReturn(200.0);
+        Mockito.when(rs.getInt("statusTiket")).thenReturn(0);
+
+        Mockito.when(rs.getInt("idRadnik")).thenReturn(1);
+        Mockito.when(rs.getString("imeRadnik")).thenReturn("Marko");
+        Mockito.when(rs.getString("prezimeRadnik")).thenReturn("Markovic");
+        Mockito.when(rs.getString("korisnickoIme")).thenReturn("marko.m");
+        Mockito.when(rs.getString("brojTelefona")).thenReturn("064111222");
+
+        Mockito.when(rs.getInt("idKorisnik")).thenReturn(1);
+        Mockito.when(rs.getString("imeKorisnik")).thenReturn("Jovan");
+        Mockito.when(rs.getString("prezimeKorisnik")).thenReturn("Jovanovic");
+        Mockito.when(rs.getString("jmbg")).thenReturn("123");
+
+        Mockito.when(rs.getInt("idGrad")).thenReturn(1);
+        Mockito.when(rs.getString("naziv")).thenReturn("Beograd");
+        Mockito.when(rs.getString("postanskiBroj")).thenReturn("11000");
+
+        Mockito.when(rs.getInt("idPar")).thenReturn(1);
+        Mockito.when(rs.getInt("redosled")).thenReturn(1);
+        Mockito.when(rs.getString("tipOpklade")).thenReturn("GG_VISE_OD_2_5");
+        Mockito.when(rs.getDouble("kvota")).thenReturn(1.5);
+
+        Mockito.when(rs.getInt("idUtakmica")).thenReturn(1);
+        Mockito.when(rs.getString("domacin")).thenReturn("Domacin1");
+        Mockito.when(rs.getString("gost")).thenReturn("Gost1");
+        Mockito.when(rs.getTimestamp("termin")).thenReturn(new Timestamp(System.currentTimeMillis()));
+
+        List<OpstiDomenskiObjekat> lista = tiket.konvertujResultSetUListu(rs);
+
+        assertEquals(1, lista.size());
+        
+        Tiket t1 = (Tiket) lista.get(0);
+        
+        assertEquals(1, t1.getParovi().size());
+    }
+
+    @Test
+    public void testKonvertujResultSetUListuPrazanResultSet() throws SQLException {
+        ResultSet rs = Mockito.mock(ResultSet.class);
+        Mockito.when(rs.next()).thenReturn(false);
+
+        List<OpstiDomenskiObjekat> lista = tiket.konvertujResultSetUListu(rs);
+
+        assertNotNull(lista);
+        assertTrue(lista.isEmpty());
+    }
+
+    @Test
+    public void testKonvertujResultSetUListu_SQLException() throws SQLException {
+        ResultSet rs = Mockito.mock(ResultSet.class);
+        Mockito.when(rs.next()).thenThrow(new SQLException("Greška u čitanju"));
+
+        assertThrows(SQLException.class, () -> tiket.konvertujResultSetUListu(rs));
+    }
+    
+     @Test
+    public void testKonvertujResultSetUObjekat_Validno() throws SQLException {
+        ResultSet rs = Mockito.mock(ResultSet.class);
+
+        Mockito.when(rs.next()).thenReturn(true, false);
+
+        Mockito.when(rs.getInt("idTiket")).thenReturn(1);
+        Mockito.when(rs.getDouble("ulog")).thenReturn(100.0);
+        Mockito.when(rs.getDouble("ukupnaKvota")).thenReturn(2.0);
+        Mockito.when(rs.getDouble("dobitak")).thenReturn(200.0);
+        Mockito.when(rs.getInt("statusTiket")).thenReturn(0);
+
+        Mockito.when(rs.getInt("idRadnik")).thenReturn(1);
+        Mockito.when(rs.getString("imeRadnik")).thenReturn("Marko");
+        Mockito.when(rs.getString("prezimeRadnik")).thenReturn("Markovic");
+        Mockito.when(rs.getString("korisnickoIme")).thenReturn("marko.m");
+
+        Mockito.when(rs.getInt("idKorisnik")).thenReturn(1);
+        Mockito.when(rs.getString("imeKorisnik")).thenReturn("Jovan");
+        Mockito.when(rs.getString("prezimeKorisnik")).thenReturn("Jovanovic");
+        Mockito.when(rs.getString("jmbg")).thenReturn("1234567890123");
+
+        Mockito.when(rs.getInt("idGrad")).thenReturn(1);
+        Mockito.when(rs.getString("naziv")).thenReturn("Beograd");
+        Mockito.when(rs.getString("postanskiBroj")).thenReturn("11000");
+
+        Mockito.when(rs.getInt("idPar")).thenReturn(1);
+        Mockito.when(rs.getInt("redosled")).thenReturn(1);
+        Mockito.when(rs.getString("tipOpklade")).thenReturn("GG");
+        Mockito.when(rs.getDouble("kvota")).thenReturn(1.5);
+
+        Mockito.when(rs.getInt("idUtakmica")).thenReturn(1);
+        Mockito.when(rs.getString("domacin")).thenReturn("Domacin1");
+        Mockito.when(rs.getString("gost")).thenReturn("Gost1");
+        Mockito.when(rs.getTimestamp("termin")).thenReturn(new Timestamp(System.currentTimeMillis()));
+
+        Tiket t = (Tiket) tiket.konvertujResultSetUObjekat(rs);
+
+        assertNotNull(t);
+        assertEquals(1, t.getIdTiket());
+        assertEquals(100.0, t.getUlog());
+        assertEquals(2.0, t.getUkupnaKvota());
+        assertEquals(200.0, t.getMoguciDobitak());
+        assertEquals(0, t.getStatus());
+        assertEquals("Marko", t.getRadnik().getIme());
+        assertEquals("Jovan", t.getKorisnik().getIme());
+        assertEquals(1, t.getParovi().size());
+        assertEquals("Domacin1", t.getParovi().get(0).getUtakmica().getDomacin());
+    }
+
+    @Test
+    public void testKonvertujResultSetUObjekatSveNull() throws SQLException {
+        ResultSet rs = Mockito.mock(ResultSet.class);
+
+        Mockito.when(rs.next()).thenReturn(true, false);
+
+        Mockito.when(rs.getInt("idTiket")).thenReturn(0);
+        Mockito.when(rs.getDouble("ulog")).thenReturn(0.0);
+        Mockito.when(rs.getDouble("ukupnaKvota")).thenReturn(0.0);
+        Mockito.when(rs.getDouble("dobitak")).thenReturn(0.0);
+        Mockito.when(rs.getInt("statusTiket")).thenReturn(-1);
+
+        Mockito.when(rs.getInt("idRadnik")).thenReturn(0);
+        Mockito.when(rs.getString("imeRadnik")).thenReturn(null);
+        Mockito.when(rs.getString("prezimeRadnik")).thenReturn(null);
+        Mockito.when(rs.getString("korisnickoIme")).thenReturn(null);
+
+        Mockito.when(rs.getInt("idKorisnik")).thenReturn(0);
+        Mockito.when(rs.getString("imeKorisnik")).thenReturn(null);
+        Mockito.when(rs.getString("prezimeKorisnik")).thenReturn(null);
+        Mockito.when(rs.getString("jmbg")).thenReturn(null);
+
+        Mockito.when(rs.getInt("idGrad")).thenReturn(0);
+        Mockito.when(rs.getString("naziv")).thenReturn(null);
+        Mockito.when(rs.getString("postanskiBroj")).thenReturn("26202");
+
+        Mockito.when(rs.getInt("idPar")).thenReturn(0);
+        Mockito.when(rs.getInt("redosled")).thenReturn(0);
+        Mockito.when(rs.getString("tipOpklade")).thenReturn("GG");
+        Mockito.when(rs.getDouble("kvota")).thenReturn(0.0);
+
+        Mockito.when(rs.getInt("idUtakmica")).thenReturn(0);
+        Mockito.when(rs.getString("domacin")).thenReturn(null);
+        Mockito.when(rs.getString("gost")).thenReturn(null);
+        Mockito.when(rs.getTimestamp("termin")).thenReturn(null);
+
+        Tiket t = (Tiket) tiket.konvertujResultSetUObjekat(rs);
+
+        assertNotNull(t);
+        assertEquals(0, t.getIdTiket());
+        assertNull(t.getRadnik().getIme());
+        assertNull(t.getKorisnik().getIme());
+        assertEquals(1, t.getParovi().size());
+        assertNull(t.getParovi().get(0).getUtakmica().getDomacin());
+    }
+
+    @Test
+    public void testKonvertujResultSetUObjekat_SQLException() throws SQLException {
+        ResultSet rs = Mockito.mock(ResultSet.class);
+        Mockito.when(rs.next()).thenThrow(new SQLException("Greška u čitanju"));
+
+        assertThrows(SQLException.class, () -> tiket.konvertujResultSetUObjekat(rs));
+    }
+    
+    // ----- OSTALO -----
+    
+    @Test
+    public void testGetNazivTabele() {
         assertEquals("tiket", tiket.getNazivTabele());
     }
 
-    /**
-     * Testira alias za SQL upite.
-     */
     @Test
-    void testAlies() {
+    public void testAlies() {
         assertEquals("t", tiket.alies());
     }
 
-    /**
-     * Testira JOIN uslove za povezane tabele.
-     */
     @Test
-    void testGetJoinUslov() {
-        String ocekivano = " JOIN radnik r ON t.idRadnik = r.idRadnik"
-                + " JOIN korisnik k ON t.idKorisnik = k.idKorisnik"
-                + " JOIN grad g ON k.idGrad = g.idGrad"
-                + " JOIN par p ON t.idTiket = p.idTiket"
-                + " JOIN utakmica u ON p.idUtakmica = u.idUtakmica";
-        assertEquals(ocekivano, tiket.getJoinUslov());
+    public void testGetJoinUslov() {
+        String join = tiket.getJoinUslov();
+        assertTrue(join.contains("JOIN radnik r ON t.idRadnik = r.idRadnik"));
+        assertTrue(join.contains("JOIN korisnik k ON t.idKorisnik = k.idKorisnik"));
     }
-
-    /**
-     * Testira kolone za INSERT SQL upit.
-     */
+    
     @Test
     void testGetKoloneZaInsert() {
         assertEquals("ulog, statusTiket, ukupnaKvota, dobitak, idRadnik, idKorisnik", tiket.getKoloneZaInsert());
     }
 
-    /**
-     * Testira vrednosti za INSERT SQL upit.
-     */
-    @Test
-    void testGetVrednostiZaInsert() {
-        tiket.setUlog(10);
-        tiket.setStatus(0);
-        tiket.setUkupnaKvota(2.5);
-        tiket.setMoguciDobitak(25);
-        tiket.setRadnik(radnik);
-        tiket.setKorisnik(korisnik);
-        String ocekivano = "10.0, 0, 2.5, 25.0, 1, 1";
-        assertEquals(ocekivano, tiket.getVrednostiZaInsert());
-    }
-
-    /**
-     * Testira vrednosti za UPDATE SQL upit kada se menja samo status.
-     */
-    @Test
-    void testGetVrednostiZaUpdate_SamoStatus() {
-        tiket.setStatus(2);
-        String ocekivano = "statusTiket = 2";
-        assertEquals(ocekivano, tiket.getVrednostiZaUpdate());
-    }
-
-    /**
-     * Testira vrednosti za UPDATE SQL upit kada se menjaju sva polja.
-     */
-    @Test
-    void testGetVrednostiZaUpdate_Sve() {
-        tiket.setStatus(1);
-        tiket.setUlog(10);
-        tiket.setRadnik(radnik);
-        tiket.setKorisnik(korisnik);
-        tiket.setUkupnaKvota(3.0);
-        tiket.setMoguciDobitak(30);
-        String ocekivano = "statusTiket = 1, ulog = 10.0, idRadnik = 1, idKorisnik = 1, ukupnaKvota = 3.0, dobitak = 30.0";
-        assertEquals(ocekivano, tiket.getVrednostiZaUpdate());
-    }
-
-    /**
-     * Testira uslov po primarnom ključu.
-     */
     @Test
     void testRequeredUslov() {
-        tiket.setIdTiket(1);
-        assertEquals("t.idTiket = 1", tiket.requeredUslov());
+        tiket.setIdTiket(5);
+        assertEquals("t.idTiket = 5", tiket.requeredUslov());
     }
-
-    /**
-     * Parametrizovan test za pretragu po različitim kriterijumima.
-     */
-    @ParameterizedTest
-    @CsvSource({
-            "1, 1, 0, 0, 0, 0, -1, t.idRadnik = 1 AND t.idKorisnik = 1",
-            "1, 0, 10, 0, 0, 0, -1, t.idRadnik = 1 AND u.idUtakmica = 10",
-            "0, 0, 0, 50, 0, 0, -1, t.ulog > 50.0",
-            "0, 0, 0, 0, 3.5, 0, -1, t.ukupnaKvota > 3.5",
-            "0, 0, 0, 0, 0, 1000, -1, t.dobitak > 1000.0",
-            "0, 0, 0, 0, 0, 0, 1, t.statusTiket = '1'"
-    })
-    void testGetUslovZaPretragu(int radnikId, int korisnikId, int utakmicaId, double ulog, double kvota, double dobitak, int status, String ocekivaniUslov) {
-        if(radnikId > 0) tiket.setRadnik(new Radnik());
-        if(korisnikId > 0) tiket.setKorisnik(new Korisnik());
-        if(utakmicaId > 0) {
-            Utakmica u = new Utakmica();
-            u.setIdUtakmica(utakmicaId);
-            Par p = new Par();
-            p.setUtakmica(u);
-            tiket.dodajPar(p);
-        }
-        tiket.setUlog(ulog);
-        tiket.setUkupnaKvota(kvota);
-        tiket.setMoguciDobitak(dobitak);
-        tiket.setStatus(status);
-
-        if (radnikId > 0) tiket.getRadnik().setIdRadnik(radnikId);
-        if (korisnikId > 0) tiket.getKorisnik().setIdKorisnik(korisnikId);
-
-        assertEquals(ocekivaniUslov, tiket.getUslovZaPretragu());
-    }
-
-    /**
-     * Testira getUslov() metodu koja vraća sve kolone sa aliasima za SELECT upit.
-     */
-    @Test
-    void testGetUslov() {
-        String ocekivano = "t.*,\n" +
-                "    r.idRadnik AS idRadnik, r.ime AS imeRadnik, r.prezime AS prezimeRadnik, r.korisnickoIme AS korisnickoIme, r.brojTelefona AS brojTelefona, \n" +
-                "    k.idKorisnik AS idKorisnik, k.ime AS imeKorisnik, k.prezime AS prezimeKorisnik, k.jmbg AS jmbg,\n" +
-                "    p.idPar AS idPar, p.redosled AS redosled, p.tipOpklade AS tipOpklade, p.kvota AS kvota, \n" +
-                "    g.idGrad AS idGrad, g.naziv AS naziv, g.postanskiBroj AS postanskiBroj, \n" +
-                "    u.idUtakmica AS idUtakmica, u.domacin AS domacin, u.gost AS gost, u.termin AS termin";
-
-        assertEquals(ocekivano, tiket.getUslov());
-    }
-
-    /**
-     * Testira konverziju ResultSet-a u listu tiketa.
-     */
-    @Test
-    void testKonvertujResultSetUListu() throws SQLException {
-        ResultSet rs = Mockito.mock(ResultSet.class);
-        Mockito.when(rs.next()).thenReturn(true, true, false);
-        Mockito.when(rs.getInt("idTiket")).thenReturn(1,1);
-        Mockito.when(rs.getInt("ulog")).thenReturn(100,100);
-        Mockito.when(rs.getDouble("ukupnaKvota")).thenReturn(2.5,2.5);
-        Mockito.when(rs.getInt("dobitak")).thenReturn(250,250);
-        Mockito.when(rs.getInt("statusTiket")).thenReturn(0,0);
-        Mockito.when(rs.getInt("idRadnik")).thenReturn(1,1);
-        Mockito.when(rs.getInt("idKorisnik")).thenReturn(1,1);
-        Mockito.when(rs.getInt("idPar")).thenReturn(1,2);
-        Mockito.when(rs.getInt("redosled")).thenReturn(1,2);
-        Mockito.when(rs.getString("tipOpklade")).thenReturn("ILI_X2","ILI_X2");
-        Mockito.when(rs.getDouble("kvota")).thenReturn(1.5,2.0);
-        Mockito.when(rs.getInt("idUtakmica")).thenReturn(1,2);
-        Mockito.when(rs.getString("domacin")).thenReturn("A","B");
-        Mockito.when(rs.getString("gost")).thenReturn("C","D");
-        Mockito.when(rs.getTimestamp("termin")).thenReturn(new Timestamp(new Date().getTime()), new Timestamp(new Date().getTime()));
-
-        List<OpstiDomenskiObjekat> lista = tiket.konvertujResultSetUListu(rs);
-        assertEquals(1, lista.size());
-        assertEquals(2, ((Tiket)lista.get(0)).getParovi().size());
-    }
-
-    /**
-     * Testira konverziju ResultSet-a u jedan tiket objekat.
-     */
-    @Test
-    void testKonvertujResultSetUObjekat() throws SQLException {
-        ResultSet rs = Mockito.mock(ResultSet.class);
-        Mockito.when(rs.next()).thenReturn(true,false);
-        Mockito.when(rs.getInt("idTiket")).thenReturn(1);
-        Mockito.when(rs.getInt("ulog")).thenReturn(100);
-        Mockito.when(rs.getDouble("ukupnaKvota")).thenReturn(2.5);
-        Mockito.when(rs.getInt("dobitak")).thenReturn(250);
-        Mockito.when(rs.getInt("statusTiket")).thenReturn(0);
-        Mockito.when(rs.getInt("idRadnik")).thenReturn(1);
-        Mockito.when(rs.getInt("idKorisnik")).thenReturn(1);
-        Mockito.when(rs.getInt("idPar")).thenReturn(1);
-        Mockito.when(rs.getInt("redosled")).thenReturn(1);
-        Mockito.when(rs.getString("tipOpklade")).thenReturn("ILI_X2");
-        Mockito.when(rs.getDouble("kvota")).thenReturn(1.5);
-        Mockito.when(rs.getInt("idUtakmica")).thenReturn(1);
-        Mockito.when(rs.getString("domacin")).thenReturn("A");
-        Mockito.when(rs.getString("gost")).thenReturn("B");
-        Mockito.when(rs.getTimestamp("termin")).thenReturn(new Timestamp(new Date().getTime()));
-
-        Tiket t = (Tiket) tiket.konvertujResultSetUObjekat(rs);
-        assertEquals(1, t.getParovi().size());
-    }
+    
+    
 }

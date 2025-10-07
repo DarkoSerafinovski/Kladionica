@@ -8,22 +8,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Detaljna test klasa za klasu KvoteUtakmica.
- * Testira ispravnost inicijalizacije kvota i funkcionalnost metoda za pristup kvotama.
- * 
- * Testovi obuhvataju:
- * <ul>
- *     <li>Validaciju inicijalizacije objekta.</li>
- *     <li>Proveru da su sve utakmice i njihove kvote ispravno dodate.</li>
- *     <li>Proveru kvota za pojedinačne utakmice.</li>
- *     <li>Ponašanje za nepostojeće utakmice.</li>
- *     <li>Testiranje vrednosti kvota za srednje utakmice iz niza.</li>
- * </ul>
- * 
- * @author Darko
- * @version 1.0
- */
 public class KvoteUtakmicaTest {
 
     private KvoteUtakmica kvoteUtakmica;
@@ -32,69 +16,84 @@ public class KvoteUtakmicaTest {
     void setUp() {
         kvoteUtakmica = new KvoteUtakmica();
     }
-
-    @AfterEach
-    void tearDown() {
-        kvoteUtakmica = null;
-    }
-
-    /**
-     * Testira inicijalizaciju objekta kroz konstruktor.
-     */
+    
+    // ----- KONSTRUKTOR -----
+    
     @Test
-    void testKonstruktor() {
-        assertNotNull(kvoteUtakmica, "Objekat KvoteUtakmica ne bi trebalo da bude null.");
+    void testKonstruktorNeVracaNull(){
+        assertNotNull(kvoteUtakmica, "Objekat kvoteUtakmica ne sme biti null");
     }
-
-    /**
-     * Testira da li su kvote za sve utakmice ispravno dodate
-     * i da li nepostojeća utakmica vraća praznu mapu.
-     */
+    
     @Test
-    void testSveUtakmiceDodate() {
+    void testKvoteZaPostojecuUtakmicuNisuNull(){
+        Map<TipOpklade, Double> kvota = kvoteUtakmica.getKvoteZaUtakmicu(1);
+        assertNotNull(kvota, "Kvote za utakmicu 1 ne smeju biti null");
+    }
+    @Test
+    void testBrojTipovaZaUtakmicu(){
         Map<TipOpklade, Double> kvote = kvoteUtakmica.getKvoteZaUtakmicu(1);
-        assertEquals(10, kvote.size(), "Utakmica 1 bi trebalo da ima 10 tipova kvota.");
-
-        kvote = kvoteUtakmica.getKvoteZaUtakmicu(20);
-        assertEquals(10, kvote.size(), "Utakmica 20 bi trebalo da ima 10 tipova kvota.");
-        
-        Map<TipOpklade, Double> kvoteZaNepostojecuUtakmicu = kvoteUtakmica.getKvoteZaUtakmicu(21);
-        assertTrue(kvoteZaNepostojecuUtakmicu.isEmpty(), "Za nepostojecu utakmicu trebalo bi da vrati praznu mapu.");
+        assertEquals(10, kvote.size(), "Utakmica 1 mora imati 10 kvota / tipova opklade");
     }
-
-    /**
-     * Testira ispravnost kvota za validnu utakmicu.
-     */
+    
     @Test
-    void testGetKvoteZaUtakmicu_ValidnaUtakmica() {
+    void testTacneVrednostiKvoteUtakmice1() {
         Map<TipOpklade, Double> kvote = kvoteUtakmica.getKvoteZaUtakmicu(1);
-        assertFalse(kvote.isEmpty(), "Mapa kvota ne bi trebalo da bude prazna.");
 
-        assertEquals(1.5, kvote.get(TipOpklade.POBEDA_DOMACIN), "Kvota za pobedu domacina nije ispravna.");
-        assertEquals(2.8, kvote.get(TipOpklade.POBEDA_GOST), "Kvota za pobedu gosta nije ispravna.");
-        assertEquals(3.2, kvote.get(TipOpklade.NERESENO), "Kvota za nereseno nije ispravna.");
+        assertEquals(1.5, kvote.get(TipOpklade.POBEDA_DOMACIN), 0.001);
+        assertEquals(2.8, kvote.get(TipOpklade.POBEDA_GOST), 0.001);
+        assertEquals(3.2, kvote.get(TipOpklade.NERESENO), 0.001);
+        assertEquals(1.8, kvote.get(TipOpklade.ILI_1X), 0.001);
+        assertEquals(2.1, kvote.get(TipOpklade.ILI_X2), 0.001);
+        assertEquals(1.6, kvote.get(TipOpklade.ILI_12), 0.001);
+        assertEquals(1.9, kvote.get(TipOpklade.GG), 0.001);
+        assertEquals(1.85, kvote.get(TipOpklade.NG), 0.001);
+        assertEquals(2.0, kvote.get(TipOpklade.VISE_OD_2_5), 0.001);
+        assertEquals(2.3, kvote.get(TipOpklade.GG_VISE_OD_2_5), 0.001);
     }
 
-    /**
-     * Testira ponašanje metode kada se zatraže kvote za nepostojeću utakmicu.
-     */
     @Test
-    void testGetKvoteZaUtakmicu_NepostojecaUtakmica() {
-        Map<TipOpklade, Double> kvote = kvoteUtakmica.getKvoteZaUtakmicu(99);
-        assertNotNull(kvote, "Metoda bi trebalo da vrati praznu, ne null mapu.");
-        assertTrue(kvote.isEmpty(), "Za nepostojecu utakmicu trebalo bi da vrati praznu mapu.");
+    void testNepostojecaUtakmicaVracaNull() {
+        Map<TipOpklade, Double> kvote = kvoteUtakmica.getKvoteZaUtakmicu(25);
+        assertNull(kvote, "Nepostojeća utakmica treba da vrati null");
     }
-
-    /**
-     * Testira kvote za jednu od srednjih utakmica u nizu (utakmica sa ID-jem 10).
-     */
+    
+    // ----- DODAVANJE KVOTE -----
+    
     @Test
-    void testGetKvoteZaUtakmicu_SrednjaUtakmica() {
-        Map<TipOpklade, Double> kvote = kvoteUtakmica.getKvoteZaUtakmicu(10);
-        assertFalse(kvote.isEmpty(), "Mapa za utakmicu 10 ne bi trebalo da bude prazna.");
+    void testDodavanjeKvoteZaNovuUtakmicu(){
+        kvoteUtakmica.dodajKvote(21, TipOpklade.GG, 2.5);
         
-        assertEquals(1.6, kvote.get(TipOpklade.POBEDA_DOMACIN));
-        assertEquals(2.4, kvote.get(TipOpklade.POBEDA_GOST));
-        assertEquals(3.3, kvote.get(TipOpklade.NERESENO));
+        Map<TipOpklade, Double> kvote = kvoteUtakmica.getKvoteZaUtakmicu(21);
+        assertNotNull(kvote, "Kvote za utakmicu ne smeju biti null");
+        assertEquals(1, kvote.size(), "Treba da postoji samo jedna kvota u novoj utakmici");
+        assertEquals(2.5, kvote.get(TipOpklade.GG), 0.001);
+    }
+    
+    @Test
+    void testAzuriranjeKvote(){
+        kvoteUtakmica.dodajKvote(1, TipOpklade.GG, 2.1);
+        Map<TipOpklade, Double> kvote = kvoteUtakmica.getKvoteZaUtakmicu(1);
+        assertEquals(2.1, kvote.get(TipOpklade.GG), 0.001);
+    }
+    
+    @Test
+    void testDodavanjeKvoteSaNevazecimId() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            kvoteUtakmica.dodajKvote(0, TipOpklade.GG, 2.0);
+        });
+    }
+
+    @Test
+    void testDodavanjeKvoteSaNullTipom() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            kvoteUtakmica.dodajKvote(1, null, 2.0);
+        });
+    }
+
+    @Test
+    void testDodavanjeKvoteSaNevalidnomVrednoscu() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            kvoteUtakmica.dodajKvote(1, TipOpklade.POBEDA_DOMACIN, 1.0);
+        });
     }
 }

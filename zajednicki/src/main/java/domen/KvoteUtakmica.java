@@ -252,9 +252,14 @@ public class KvoteUtakmica {
 
     }
 
-    private void dodajKvote(int idUtakmica, TipOpklade tip, double kvota) {
-        kvotePoUtakmici.putIfAbsent(idUtakmica, new HashMap<>());
-        kvotePoUtakmici.get(idUtakmica).put(tip, kvota);
+    public void dodajKvote(int idUtakmica, TipOpklade tip, double kvota) {
+        if(kvota > 1){
+            kvotePoUtakmici.putIfAbsent(idUtakmica, new HashMap<>());
+            kvotePoUtakmici.get(idUtakmica).put(tip, kvota);
+        }else{
+            System.out.println("Kvota mora biti veca od 1.");
+        }
+        
     }
 
     public Map<TipOpklade, Double> getKvoteZaUtakmicu(int idUtakmica) {

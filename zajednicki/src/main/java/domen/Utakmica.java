@@ -3,10 +3,8 @@ package domen;
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 public class Utakmica implements Serializable, OpstiDomenskiObjekat {
     
@@ -19,13 +17,12 @@ public class Utakmica implements Serializable, OpstiDomenskiObjekat {
     }
 
     public Utakmica(int idUtakmica, String domacin, String gost, Date termin) {
-        this.idUtakmica = idUtakmica;
-        this.domacin = domacin;
-        this.gost = gost;
-        this.termin = termin;
+        setIdUtakmica(idUtakmica);
+        setDomacin(domacin);
+        setGost(gost);
+        setTermin(termin);
     }
 
-    // getteri i setteri ovde...
     public int getIdUtakmica() {
         return idUtakmica;
     }
@@ -63,27 +60,6 @@ public class Utakmica implements Serializable, OpstiDomenskiObjekat {
         return domacin + "-" + gost;
     }
     
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 29 * hash + this.idUtakmica;
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final Utakmica other = (Utakmica) obj;
-        return this.idUtakmica == other.idUtakmica;
-    }
 
     @Override
     public String getNazivTabele() {
@@ -107,32 +83,46 @@ public class Utakmica implements Serializable, OpstiDomenskiObjekat {
 
     @Override
     public String getVrednostiZaInsert() {
-        return "'" + domacin + "', '" + gost + "', '" + termin + "'";
+        return "'" + domacin + "', '" + gost + "', '" + new java.sql.Timestamp(termin.getTime()) + "'";
     }
 
     @Override
     public String getVrednostiZaUpdate() {
-        return "domacin = '" + domacin + "', gost = '" + gost + "', termin = '" + termin + "'";
+        return "domacin = '" + domacin + "', gost = '" + gost + "', termin = '" + new java.sql.Timestamp(termin.getTime()) + "'";
     }
 
     @Override
     public String requeredUslov() {
-        return "u.utakmica = " + idUtakmica;
+        return "u.idUtakmica = " + idUtakmica;
     }
 
     @Override
     public String getUslovZaPretragu() {
+        StringBuilder uslov = new StringBuilder();
+        boolean prviUslov = true;
+
         if (domacin != null && !domacin.isEmpty()) {
-            return "u.domacin LIKE '%" + domacin + "%'";
+            uslov.append("u.domacin LIKE '%").append(domacin).append("%'");
+            prviUslov = false;
         }
+
         if (gost != null && !gost.isEmpty()) {
-            return "u.gost LIKE '%" + gost + "%'";
+            if (!prviUslov) {
+                uslov.append(" AND ");
+            }
+            uslov.append("u.gost LIKE '%").append(gost).append("%'");
+            prviUslov = false;
         }
+
         if (termin != null) {
+            if (!prviUslov) {
+                uslov.append(" AND ");
+            }
             java.sql.Date sqlDate = new java.sql.Date(termin.getTime());
-            return "u.termin = '" + sqlDate + "'";
+            uslov.append("u.termin = '").append(sqlDate).append("'");
         }
-        return "";
+
+        return uslov.toString();
     }
 
     @Override
@@ -148,7 +138,7 @@ public class Utakmica implements Serializable, OpstiDomenskiObjekat {
             utakmica.setIdUtakmica(rs.getInt("idUtakmica"));
             utakmica.setDomacin(rs.getString("domacin"));
             utakmica.setGost(rs.getString("gost"));
-            utakmica.setTermin(rs.getDate("termin"));
+            utakmica.setTermin(rs.getTimestamp("termin"));
             lista.add(utakmica);
         }
         return lista;
@@ -160,10 +150,7 @@ public class Utakmica implements Serializable, OpstiDomenskiObjekat {
         utakmica.setIdUtakmica(rs.getInt("idUtakmica"));
         utakmica.setDomacin(rs.getString("domacin"));
         utakmica.setGost(rs.getString("gost"));
-        utakmica.setTermin(rs.getDate("termin"));
+        utakmica.setTermin(rs.getTimestamp("termin"));
         return utakmica;
     }
-
-
-    
 }

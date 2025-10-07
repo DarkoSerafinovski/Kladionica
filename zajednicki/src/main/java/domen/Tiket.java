@@ -106,40 +106,19 @@ public class Tiket implements Serializable, OpstiDomenskiObjekat {
     }
 
     @Override
-public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("Tiket ID: ").append(idTiket)
-      .append("\nUlog: ").append(ulog)
-      .append("\nUkupna kvota: ").append(ukupnaKvota)
-      .append("\nMogući dobitak: ").append(moguciDobitak)
-      .append("\nStatus: ");
-
-    switch (status) {
-        case 0: sb.append("U toku"); break;
-        case 1: sb.append("Dobitni"); break;
-        case 2: sb.append("Izgubljeni"); break;
-        default: sb.append("Nepoznat"); break;
+    public String toString() {
+        return "Tiket{" +
+                "idTiket=" + idTiket +
+                ", ulog=" + ulog +
+                ", ukupnaKvota=" + ukupnaKvota +
+                ", moguciDobitak=" + moguciDobitak +
+                ", status=" + status +
+                ", radnik=" + (radnik != null ? radnik.getIme() + " " + radnik.getPrezime() : "null") +
+                ", korisnik=" + (korisnik != null ? korisnik.getIme() + " " + korisnik.getPrezime() : "null") +
+                ", parovi=" + (parovi != null ? parovi.size() + " parova" : "null") +
+                '}';
     }
 
-    sb.append("\nRadnik: ").append(radnik != null ? radnik.getIme() + " " + radnik.getPrezime() : "N/A")
-      .append("\nKorisnik: ").append(korisnik != null ? korisnik.getIme() + " " + korisnik.getPrezime() : "N/A")
-      .append("\nParovi:");
-
-    if (parovi != null && !parovi.isEmpty()) {
-        for (Par p : parovi) {
-            Utakmica u = p.getUtakmica();
-            sb.append("\n  Par ID: ").append(p.getIdPar())
-              .append(" | Tip opklade: ").append(p.getTipOpklade())
-              .append(" | Kvota: ").append(p.getKvota())
-              .append(" | Utakmica: ")
-              .append(u != null ? u.getDomacin() + " vs " + u.getGost() + " (" + u.getTermin() + ")" : "N/A");
-        }
-    } else {
-        sb.append(" Nema parova.");
-    }
-
-    return sb.toString();
-}
 
 
      @Override
@@ -261,139 +240,131 @@ public String toString() {
     public ArrayList<OpstiDomenskiObjekat> konvertujResultSetUListu(ResultSet rs) throws SQLException {
         Map<Integer, Tiket> mapaTiketa = new HashMap<>();
 
-    while (rs.next()) {
-        int idTiket = rs.getInt("idTiket");
+        while (rs.next()) {
+            int idTiket = rs.getInt("idTiket");
 
-        Tiket t = mapaTiketa.get(idTiket);
-        if (t == null) {
-            t = new Tiket();
-            t.setIdTiket(idTiket);
-            t.setUlog(rs.getDouble("ulog"));
-            t.setUkupnaKvota(rs.getDouble("ukupnaKvota"));
-            t.setMoguciDobitak(rs.getDouble("dobitak"));
-            t.setStatus(rs.getInt("statusTiket"));
+            Tiket t = mapaTiketa.get(idTiket);
+            if (t == null) {
+                t = new Tiket();
+                t.setIdTiket(idTiket);
+                t.setUlog(rs.getDouble("ulog"));
+                t.setUkupnaKvota(rs.getDouble("ukupnaKvota"));
+                t.setMoguciDobitak(rs.getDouble("dobitak"));
+                t.setStatus(rs.getInt("statusTiket"));
 
-            Radnik r = new Radnik();
-            r.setIdRadnik(rs.getInt("idRadnik"));
-            r.setIme(rs.getString("imeRadnik"));
-            r.setPrezime(rs.getString("prezimeRadnik"));
-            r.setKorisnickoIme(rs.getString("korisnickoIme"));
-            r.setBrojTelefona(rs.getString("brojTelefona"));
-            t.setRadnik(r);
-            
-            Grad g = new Grad();
-            g.setIdGrad(rs.getInt("idGrad"));
-            g.setNaziv(rs.getString("naziv"));
-            g.setPostanskiBroj(rs.getString("postanskiBroj"));
+                Radnik r = new Radnik();
+                r.setIdRadnik(rs.getInt("idRadnik"));
+                r.setIme(rs.getString("imeRadnik"));
+                r.setPrezime(rs.getString("prezimeRadnik"));
+                r.setKorisnickoIme(rs.getString("korisnickoIme"));
+                r.setBrojTelefona(rs.getString("brojTelefona"));
+                t.setRadnik(r);
 
-            Korisnik k = new Korisnik();
-            k.setIdKorisnik(rs.getInt("idKorisnik"));
-            k.setIme(rs.getString("imeKorisnik"));
-            k.setPrezime(rs.getString("prezimeKorisnik"));
-            k.setJmbg(rs.getString("jmbg"));
-            k.setGrad(g);
-            t.setKorisnik(k);
+                Grad g = new Grad();
+                g.setIdGrad(rs.getInt("idGrad"));
+                g.setNaziv(rs.getString("naziv"));
+                g.setPostanskiBroj(rs.getString("postanskiBroj"));
 
-            t.setParovi(new ArrayList<>());
+                Korisnik k = new Korisnik();
+                k.setIdKorisnik(rs.getInt("idKorisnik"));
+                k.setIme(rs.getString("imeKorisnik"));
+                k.setPrezime(rs.getString("prezimeKorisnik"));
+                k.setJmbg(rs.getString("jmbg"));
+                k.setGrad(g);
+                t.setKorisnik(k);
 
-            mapaTiketa.put(idTiket, t);
+                t.setParovi(new ArrayList<>());
+
+                mapaTiketa.put(idTiket, t);
+            }
+
+            Par p = new Par();
+            p.setIdPar(rs.getInt("idPar"));
+            p.setRedosled(rs.getInt("redosled"));
+
+            String tipOpkladeStr = rs.getString("tipOpklade");
+            if(tipOpkladeStr != null) {
+                p.setTipOpklade(TipOpklade.valueOf(tipOpkladeStr.toUpperCase())); 
+            } else {
+                p.setTipOpklade(null);
+            }
+
+            p.setKvota(rs.getDouble("kvota"));
+
+            Utakmica u = new Utakmica();
+            u.setIdUtakmica(rs.getInt("idUtakmica"));
+            u.setDomacin(rs.getString("domacin"));
+            u.setGost(rs.getString("gost"));
+            u.setTermin(rs.getTimestamp("termin"));
+            p.setUtakmica(u);
+
+            t.getParovi().add(p);
         }
-
-        // sad dodaj par u listu tog tiketa
-        Par p = new Par();
-        p.setIdPar(rs.getInt("idPar"));
-        p.setRedosled(rs.getInt("redosled"));
-        
-        String tipOpkladeStr = rs.getString("tipOpklade");
-        if(tipOpkladeStr != null) {
-            p.setTipOpklade(TipOpklade.valueOf(tipOpkladeStr.toUpperCase())); 
-        } else {
-            p.setTipOpklade(null);
-        }
-        
-        p.setKvota(rs.getDouble("kvota"));
-       
-        Utakmica u = new Utakmica();
-        u.setIdUtakmica(rs.getInt("idUtakmica"));
-        u.setDomacin(rs.getString("domacin"));
-        u.setGost(rs.getString("gost"));
-        u.setTermin(rs.getTimestamp("termin"));
-        p.setUtakmica(u);
-
-        t.getParovi().add(p);
+        return new ArrayList<>(mapaTiketa.values());
     }
-
-    return new ArrayList<>(mapaTiketa.values());
-
-    }
-
-    @Override
-public OpstiDomenskiObjekat konvertujResultSetUObjekat(ResultSet rs) throws SQLException {
-    Tiket tiket = null;
-    Map<Integer, Tiket> mapaTiketa = new HashMap<>();
-
-    while (rs.next()) {
-        int idTiket = rs.getInt("idTiket");
-
-        tiket = mapaTiketa.get(idTiket);
-        if (tiket == null) {
-            tiket = new Tiket();
-            tiket.setIdTiket(idTiket);
-            tiket.setUlog(rs.getDouble("ulog"));
-            tiket.setUkupnaKvota(rs.getDouble("ukupnaKvota"));
-            tiket.setMoguciDobitak(rs.getDouble("dobitak"));
-            tiket.setStatus(rs.getInt("statusTiket"));
-
-            // Radnik
-            Radnik r = new Radnik();
-            r.setIdRadnik(rs.getInt("idRadnik"));
-            r.setIme(rs.getString("imeRadnik"));
-            r.setPrezime(rs.getString("prezimeRadnik"));
-            r.setKorisnickoIme(rs.getString("korisnickoIme"));
-            tiket.setRadnik(r);
-
-            // Korisnik + Grad
-            Grad g = new Grad();
-            g.setIdGrad(rs.getInt("idGrad"));
-            g.setNaziv(rs.getString("naziv"));
-            g.setPostanskiBroj(rs.getString("postanskiBroj"));
-
-            Korisnik k = new Korisnik();
-            k.setIdKorisnik(rs.getInt("idKorisnik"));
-            k.setIme(rs.getString("imeKorisnik"));
-            k.setPrezime(rs.getString("prezimeKorisnik"));
-            k.setJmbg(rs.getString("jmbg"));
-            k.setGrad(g);
-
-            tiket.setKorisnik(k);
-
-            tiket.setParovi(new ArrayList<>());
-            mapaTiketa.put(idTiket, tiket);
-        }
-
-        // Par
-        Par p = new Par();
-        p.setIdPar(rs.getInt("idPar"));
-        Utakmica u = new Utakmica();
-        u.setIdUtakmica(rs.getInt("idUtakmica"));
-        u.setDomacin(rs.getString("domacin"));
-        u.setGost(rs.getString("gost"));
-        u.setTermin(rs.getTimestamp("termin"));
-        p.setUtakmica(u);
-        p.setTipOpklade(Enum.valueOf(TipOpklade.class, rs.getString("tipOpklade")));
-        p.setKvota(rs.getDouble("kvota"));
-        p.setRedosled(rs.getInt("redosled"));
-
-        tiket.getParovi().add(p);
-    }
-
-    if (mapaTiketa.isEmpty()) return null;
-
-    // Pošto uvratiJednog traži jedan tiket, vratimo prvi iz mape
-    return mapaTiketa.values().iterator().next();
-}
-
-
-
     
+    @Override
+    public OpstiDomenskiObjekat konvertujResultSetUObjekat(ResultSet rs) throws SQLException {
+        Tiket tiket = null;
+        Map<Integer, Tiket> mapaTiketa = new HashMap<>();
+
+        while (rs.next()) {
+            int idTiket = rs.getInt("idTiket");
+
+            tiket = mapaTiketa.get(idTiket);
+            if (tiket == null) {
+                tiket = new Tiket();
+                tiket.setIdTiket(idTiket);
+                tiket.setUlog(rs.getDouble("ulog"));
+                tiket.setUkupnaKvota(rs.getDouble("ukupnaKvota"));
+                tiket.setMoguciDobitak(rs.getDouble("dobitak"));
+                tiket.setStatus(rs.getInt("statusTiket"));
+
+                // Radnik
+                Radnik r = new Radnik();
+                r.setIdRadnik(rs.getInt("idRadnik"));
+                r.setIme(rs.getString("imeRadnik"));
+                r.setPrezime(rs.getString("prezimeRadnik"));
+                r.setKorisnickoIme(rs.getString("korisnickoIme"));
+                tiket.setRadnik(r);
+
+                // Korisnik + Grad
+                Grad g = new Grad();
+                g.setIdGrad(rs.getInt("idGrad"));
+                g.setNaziv(rs.getString("naziv"));
+                g.setPostanskiBroj(rs.getString("postanskiBroj"));
+
+                Korisnik k = new Korisnik();
+                k.setIdKorisnik(rs.getInt("idKorisnik"));
+                k.setIme(rs.getString("imeKorisnik"));
+                k.setPrezime(rs.getString("prezimeKorisnik"));
+                k.setJmbg(rs.getString("jmbg"));
+                k.setGrad(g);
+
+                tiket.setKorisnik(k);
+
+                tiket.setParovi(new ArrayList<>());
+                mapaTiketa.put(idTiket, tiket);
+            }
+
+            // Par
+            Par p = new Par();
+            p.setIdPar(rs.getInt("idPar"));
+            Utakmica u = new Utakmica();
+            u.setIdUtakmica(rs.getInt("idUtakmica"));
+            u.setDomacin(rs.getString("domacin"));
+            u.setGost(rs.getString("gost"));
+            u.setTermin(rs.getTimestamp("termin"));
+            p.setUtakmica(u);
+            p.setTipOpklade(Enum.valueOf(TipOpklade.class, rs.getString("tipOpklade")));
+            p.setKvota(rs.getDouble("kvota"));
+            p.setRedosled(rs.getInt("redosled"));
+
+            tiket.getParovi().add(p);
+        }
+
+        if (mapaTiketa.isEmpty()) return null;
+
+        return mapaTiketa.values().iterator().next();
+    }
 }

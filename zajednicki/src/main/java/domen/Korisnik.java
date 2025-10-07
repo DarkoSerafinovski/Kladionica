@@ -5,29 +5,26 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-public class Korisnik implements Serializable, OpstiDomenskiObjekat{
-    
+public class Korisnik implements Serializable, OpstiDomenskiObjekat {
+
     private int idKorisnik;
     private String ime;
     private String prezime;
     private String jmbg;
     private Grad grad;
-    
+
     public Korisnik() {
     }
 
     public Korisnik(int idKorisnik, String ime, String prezime, String jmbg, Grad grad) {
-        this.idKorisnik = idKorisnik;
-        this.ime = ime;
-        this.prezime = prezime;
-        this.jmbg = jmbg;
-        this.grad = grad;
+        setIdKorisnik(idKorisnik);
+        setIme(ime);
+        setPrezime(prezime);
+        setJmbg(jmbg);
+        setGrad(grad);
     }
 
-    
     public int getIdKorisnik() {
         return idKorisnik;
     }
@@ -68,7 +65,6 @@ public class Korisnik implements Serializable, OpstiDomenskiObjekat{
         this.grad = grad;
     }
 
-
     @Override
     public String toString() {
         return ime + " " + prezime;
@@ -96,7 +92,7 @@ public class Korisnik implements Serializable, OpstiDomenskiObjekat{
 
     @Override
     public String getVrednostiZaInsert() {
-        return "'Ime', '" + "Prezime" + "', '" + "0000000000000" + "', " + "1";
+        return "'" + ime + "', '" + prezime + "', '" + jmbg + "', " + grad.getIdGrad();
     }
 
     @Override
@@ -112,7 +108,6 @@ public class Korisnik implements Serializable, OpstiDomenskiObjekat{
     @Override
     public String getUslovZaPretragu() {
         List<String> uslovi = new ArrayList<>();
-
         if (ime != null && !ime.isEmpty()) {
             uslovi.add("k.ime LIKE '%" + ime + "%'");
         }
@@ -125,14 +120,8 @@ public class Korisnik implements Serializable, OpstiDomenskiObjekat{
         if (grad != null && grad.getIdGrad() > 0) {
             uslovi.add("k.idGrad = " + grad.getIdGrad());
         }
-
-        if (uslovi.isEmpty()) {
-            return "";
-        }
-
-        return String.join(" AND ", uslovi);
+        return uslovi.isEmpty() ? "" : String.join(" AND ", uslovi);
     }
-    
 
     @Override
     public String getUslov() {
@@ -147,7 +136,7 @@ public class Korisnik implements Serializable, OpstiDomenskiObjekat{
             g.setIdGrad(rs.getInt("idGrad"));
             g.setNaziv(rs.getString("naziv"));
             g.setPostanskiBroj(rs.getString("postanskiBroj"));
-            
+
             Korisnik k = new Korisnik();
             k.setIdKorisnik(rs.getInt("idKorisnik"));
             k.setIme(rs.getString("ime"));
@@ -176,7 +165,4 @@ public class Korisnik implements Serializable, OpstiDomenskiObjekat{
 
         return k;
     }
-
-
-    
 }

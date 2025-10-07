@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class Par implements Serializable, OpstiDomenskiObjekat {
     private int idPar;
@@ -18,12 +17,12 @@ public class Par implements Serializable, OpstiDomenskiObjekat {
     }
 
     public Par(int idPar, int idTiket, Utakmica utakmica, TipOpklade tipOpklade, double kvota, int redosled) {
-        this.idPar = idPar;
-        this.idTiket = idTiket;
-        this.utakmica = utakmica;
-        this.tipOpklade = tipOpklade;
-        this.kvota = kvota;
-        this.redosled = redosled;
+        setIdPar(idPar);
+        setIdTiket(idTiket);
+        setUtakmica(utakmica);
+        setTipOpklade(tipOpklade);
+        setKvota(kvota);
+        setRedosled(redosled);
     }
 
     public int getIdPar() {
@@ -50,8 +49,6 @@ public class Par implements Serializable, OpstiDomenskiObjekat {
         this.utakmica = utakmica;
     }
 
-    
-
     public TipOpklade getTipOpklade() {
         return tipOpklade;
     }
@@ -76,13 +73,12 @@ public class Par implements Serializable, OpstiDomenskiObjekat {
         this.redosled = redosled;
     }
 
-
     @Override
     public String toString() {
         return "Par{" +
                 "idPar=" + idPar +
                 ", idTiket=" + idTiket +
-                ", Utakmica=" + utakmica +
+                ", utakmica=" + utakmica +
                 ", tipOpklade='" + tipOpklade + '\'' +
                 ", kvota=" + kvota +
                 ", redosled=" + redosled +
@@ -117,7 +113,7 @@ public class Par implements Serializable, OpstiDomenskiObjekat {
 
     @Override
     public String getVrednostiZaUpdate() {
-        return "tipOpklade = '" + tipOpklade + "', kvota = " + kvota + ", status = " + ", redosled = " + redosled;
+        return "tipOpklade = '" + tipOpklade + "', kvota = " + kvota + ", redosled = " + redosled;
     }
 
     @Override
@@ -139,22 +135,22 @@ public class Par implements Serializable, OpstiDomenskiObjekat {
     public ArrayList<OpstiDomenskiObjekat> konvertujResultSetUListu(ResultSet rs) throws SQLException {
         ArrayList<OpstiDomenskiObjekat> lista = new ArrayList<>();
         while (rs.next()) {
-
-            // Kreiranje utakmice
             Utakmica u = new Utakmica();
             u.setIdUtakmica(rs.getInt("idUtakmica"));
-            u.setDomacin(rs.getString("domacin"));   // pretpostavljam da imaš kolonu "domacin"
-            u.setGost(rs.getString("gost"));         // pretpostavljam "gost"
-            u.setTermin(rs.getTimestamp("termin"));    // pretpostavljam "datum"
-            // dodaj ostale atribute iz tabele utakmica koje imaš
+            u.setDomacin(rs.getString("domacin"));
+            u.setGost(rs.getString("gost"));
+            u.setTermin(rs.getTimestamp("termin"));
 
-            // Kreiranje para
             Par par = new Par();
             par.setIdPar(rs.getInt("idPar"));
             par.setIdTiket(rs.getInt("idTiket"));
-            par.setUtakmica(u);   // umesto idUtakmica stavljamo ceo objekat
+            par.setUtakmica(u);
             String tipOpkladeStr = rs.getString("tipOpklade");
-            par.setTipOpklade(TipOpklade.valueOf(tipOpkladeStr));
+            if (tipOpkladeStr != null) {
+                par.setTipOpklade(TipOpklade.valueOf(tipOpkladeStr));
+            } else {
+                par.setTipOpklade(null);
+            }
             par.setKvota(rs.getDouble("kvota"));
             par.setRedosled(rs.getInt("redosled"));
 
@@ -163,28 +159,27 @@ public class Par implements Serializable, OpstiDomenskiObjekat {
         return lista;
     }
 
-
     @Override
     public OpstiDomenskiObjekat konvertujResultSetUObjekat(ResultSet rs) throws SQLException {
         Utakmica u = new Utakmica();
-            u.setIdUtakmica(rs.getInt("idUtakmica"));
-            u.setDomacin(rs.getString("domacin"));   // pretpostavljam da imaš kolonu "domacin"
-            u.setGost(rs.getString("gost"));         // pretpostavljam "gost"
-            u.setTermin(rs.getTimestamp("termin"));    // pretpostavljam "datum"
-            // dodaj ostale atribute iz tabele utakmica koje imaš
+        u.setIdUtakmica(rs.getInt("idUtakmica"));
+        u.setDomacin(rs.getString("domacin"));
+        u.setGost(rs.getString("gost"));
+        u.setTermin(rs.getTimestamp("termin"));
 
-            // Kreiranje para
-            Par par = new Par();
-            par.setIdPar(rs.getInt("idPar"));
-            par.setIdTiket(rs.getInt("idTiket"));
-            par.setUtakmica(u);   // umesto idUtakmica stavljamo ceo objekat
-            String tipOpkladeStr = rs.getString("tipOpklade");
+        Par par = new Par();
+        par.setIdPar(rs.getInt("idPar"));
+        par.setIdTiket(rs.getInt("idTiket"));
+        par.setUtakmica(u);
+        String tipOpkladeStr = rs.getString("tipOpklade");
+        if (tipOpkladeStr != null) {
             par.setTipOpklade(TipOpklade.valueOf(tipOpkladeStr));
-            par.setKvota(rs.getDouble("kvota"));
-            par.setRedosled(rs.getInt("redosled"));
-            
-            return par;
-    }
+        } else {
+            par.setTipOpklade(null);
+        }
+        par.setKvota(rs.getDouble("kvota"));
+        par.setRedosled(rs.getInt("redosled"));
 
-   
+        return par;
+    }
 }

@@ -1,46 +1,41 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package domen;
 
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 
-/**
- *
- * @author Darko
- */
-public class Grad implements Serializable, OpstiDomenskiObjekat{
-    
+
+public class Grad implements Serializable, OpstiDomenskiObjekat {
+
     private int idGrad;
     private String naziv;
     private String postanskiBroj;
 
     public Grad(int idGrad, String naziv, String postanskiBroj) {
-        this.idGrad = idGrad;
-        this.naziv = naziv;
-        this.postanskiBroj = postanskiBroj;
+        setIdGrad(idGrad);
+        setNaziv(naziv); 
+        setPostanskiBroj(postanskiBroj);
     }
 
     public Grad() {
-        
     }
-    
+
     public int getIdGrad() {
         return idGrad;
     }
 
     public void setIdGrad(int idGrad) {
+        if(idGrad < 0){
+            throw new IllegalArgumentException("ID Grada ne sme da bude negativan.");
+        }
         this.idGrad = idGrad;
     }
 
     public String getNaziv() {
         return naziv;
     }
+
 
     public void setNaziv(String naziv) {
         this.naziv = naziv;
@@ -51,13 +46,18 @@ public class Grad implements Serializable, OpstiDomenskiObjekat{
     }
 
     public void setPostanskiBroj(String postanskiBroj) {
+        if (postanskiBroj == null) {
+            throw new NullPointerException("Poštanski broj ne sme biti null.");
+        }
+        if (postanskiBroj.length() < 2) {
+            throw new IllegalArgumentException("Poštanski broj mora imati najmanje 2 karaktera.");
+        }
         this.postanskiBroj = postanskiBroj;
     }
 
     @Override
     public String toString() {
         return naziv;
-        
     }
 
     @Override
@@ -123,9 +123,6 @@ public class Grad implements Serializable, OpstiDomenskiObjekat{
 
     @Override
     public OpstiDomenskiObjekat konvertujResultSetUObjekat(ResultSet rs) throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        throw new UnsupportedOperationException("Not supported yet.");
     }
-
-
-    
 }

@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class Poslovnica implements Serializable, OpstiDomenskiObjekat {
 
@@ -16,17 +15,9 @@ public class Poslovnica implements Serializable, OpstiDomenskiObjekat {
     }
 
     public Poslovnica(int idPoslovnica, String adresa, String brojTelefona) {
-        this.idPoslovnica = idPoslovnica;
-        this.adresa = adresa;
-        this.brojTelefona = brojTelefona;
-    }
-
-    public String getAdresa() {
-        return adresa;
-    }
-
-    public void setAdresa(String adresa) {
-        this.adresa = adresa;
+        setIdPoslovnica(idPoslovnica);
+        setAdresa(adresa);
+        setBrojTelefona(brojTelefona);
     }
 
     public int getIdPoslovnica() {
@@ -35,6 +26,14 @@ public class Poslovnica implements Serializable, OpstiDomenskiObjekat {
 
     public void setIdPoslovnica(int idPoslovnica) {
         this.idPoslovnica = idPoslovnica;
+    }
+
+    public String getAdresa() {
+        return adresa;
+    }
+
+    public void setAdresa(String adresa) {
+        this.adresa = adresa;
     }
 
     public String getBrojTelefona() {
@@ -50,7 +49,7 @@ public class Poslovnica implements Serializable, OpstiDomenskiObjekat {
         return adresa;
     }
 
-     @Override
+    @Override
     public String getNazivTabele() {
         return "poslovnica";
     }
@@ -87,13 +86,23 @@ public class Poslovnica implements Serializable, OpstiDomenskiObjekat {
 
     @Override
     public String getUslovZaPretragu() {
+        StringBuilder uslov = new StringBuilder();
+        boolean prviUslov = true;
+
         if (adresa != null && !adresa.isEmpty()) {
-            return "p.adresa LIKE '%" + adresa + "%'";
+            uslov.append("p.adresa LIKE '%").append(adresa).append("%'");
+            prviUslov = false;
         }
+
         if (brojTelefona != null && !brojTelefona.isEmpty()) {
-            return "p.brojTelefona LIKE '%" + brojTelefona + "%'";
+            if (!prviUslov) {
+                uslov.append(" AND ");
+            }
+            uslov.append("p.brojTelefona LIKE '%").append(brojTelefona).append("%'");
+            prviUslov = false;
         }
-        return "";
+
+        return uslov.toString();
     }
 
     @Override
@@ -116,8 +125,6 @@ public class Poslovnica implements Serializable, OpstiDomenskiObjekat {
 
     @Override
     public OpstiDomenskiObjekat konvertujResultSetUObjekat(ResultSet rs) throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        throw new UnsupportedOperationException("Not supported yet.");
     }
-  
-    
 }
