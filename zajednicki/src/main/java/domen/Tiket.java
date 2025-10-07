@@ -10,6 +10,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Klasa predstavlja tiket u sistemu za opklade.
+ * Sadrzi informacije o ulogu, ukupnoj kvoti, mogucem dobitku, statusu,
+ * radniku koji ga je uneo, korisniku koji ga je uplatio i listi parova.
+ */
+
 public class Tiket implements Serializable, OpstiDomenskiObjekat {
 
     private int idTiket;
@@ -21,10 +27,27 @@ public class Tiket implements Serializable, OpstiDomenskiObjekat {
     private Korisnik korisnik;
     private List<Par> parovi;
 
+    /**
+     * Podrazumevani konstruktor koji inicijalizuje praznu listu parova.
+     */
+    
     public Tiket() {
         parovi = new ArrayList<>();
     }
 
+    /**
+     * Parametrizovani konstruktor koji postavlja sve atribute tiketa.
+     * 
+     * @param idTiket jedinstveni identifikator tiketa
+     * @param ulog iznos uloga koji korisnik uplacuje
+     * @param ukupnaKvota ukupna kvota tiketa
+     * @param moguciDobitak moguci dobitak koji korisnik moze ostvariti
+     * @param status status tiketa (0 - neobradjen, 1 - dobitan, 2 - gubitan)
+     * @param radnik radnik koji je uneo tiket
+     * @param korisnik korisnik koji je uplatio tiket
+     * @param parovi lista parova na tiketu
+     */
+    
     public Tiket(int idTiket, double ulog, double ukupnaKvota, double moguciDobitak, int status, Radnik radnik, Korisnik korisnik, List<Par> parovi) {
         this.idTiket = idTiket;
         this.ulog = ulog;
@@ -36,75 +59,132 @@ public class Tiket implements Serializable, OpstiDomenskiObjekat {
         this.parovi = parovi;
     }
 
+    /**
+     * @return ID tiketa
+     */
     public int getIdTiket() {
         return idTiket;
     }
 
+    /**
+     * @param idTiket ID tiketa
+     */
     public void setIdTiket(int idTiket) {
         this.idTiket = idTiket;
     }
 
+    /**
+     * @return vrednost uloga
+     */
     public double getUlog() {
         return ulog;
     }
 
+    /**
+     * @param ulog vrednost uloga
+     */
     public void setUlog(double ulog) {
         this.ulog = ulog;
     }
 
+    /**
+     * @return ukupna kvota tiketa
+     */
     public double getUkupnaKvota() {
         return ukupnaKvota;
     }
 
+    /**
+     * @param ukupnaKvota ukupna kvota tiketa
+     */
     public void setUkupnaKvota(double ukupnaKvota) {
         this.ukupnaKvota = ukupnaKvota;
     }
 
+    /**
+     * @return moguci dobitak tiketa
+     */
     public double getMoguciDobitak() {
         return moguciDobitak;
     }
 
+    /**
+     * @param moguciDobitak moguci dobitak tiketa
+     */
     public void setMoguciDobitak(double moguciDobitak) {
         this.moguciDobitak = moguciDobitak;
     }
 
+    /**
+     * @return status tiketa
+     */
     public int getStatus() {
         return status;
     }
 
+    /**
+     * @param status status tiketa
+     */
     public void setStatus(int status) {
         this.status = status;
     }
 
+    /**
+     * @return radnik koji je uneo tiket
+     */
     public Radnik getRadnik() {
         return radnik;
     }
 
+    /**
+     * @param radnik radnik koji je uneo tiket
+     */
     public void setRadnik(Radnik radnik) {
         this.radnik = radnik;
     }
 
+    /**
+     * @return korisnik koji je uplatio tiket
+     */
     public Korisnik getKorisnik() {
         return korisnik;
     }
 
+    /**
+     * @param korisnik korisnik koji je uplatio tiket
+     */
     public void setKorisnik(Korisnik korisnik) {
         this.korisnik = korisnik;
     }
 
+    /**
+     * @return lista parova na tiketu
+     */
     public List<Par> getParovi() {
         return parovi;
     }
 
+    /**
+     * @param parovi lista parova na tiketu
+     */
     public void setParovi(List<Par> parovi) {
         this.parovi = parovi;
     }
-    
+
+    /**
+     * Dodaje novi par na tiket.
+     * 
+     * @param par par koji se dodaje
+     */
     public void dodajPar(Par par) {
         if (parovi == null) parovi = new ArrayList<>();
         parovi.add(par);
     }
-
+    
+    /**
+     * @return string reprezentacija tiketa
+     */
+    
     @Override
     public String toString() {
         return "Tiket{" +
@@ -119,18 +199,28 @@ public class Tiket implements Serializable, OpstiDomenskiObjekat {
                 '}';
     }
 
+    /**
+     * @return naziv tabele u bazi
+     */
 
-
-     @Override
+    @Override
     public String getNazivTabele() {
         return "tiket";
     }
 
+    /**
+     * @return alijas za tiket u SQL upitima
+     */
+    
     @Override
     public String alies() {
         return "t";
     }
 
+    /**
+     * @return SQL uslov za spajanje tabela
+     */
+    
     @Override
     public String getJoinUslov() {
         return " JOIN radnik r ON t.idRadnik = r.idRadnik"
@@ -140,18 +230,26 @@ public class Tiket implements Serializable, OpstiDomenskiObjekat {
              + " JOIN utakmica u ON p.idUtakmica = u.idUtakmica";
     }
 
-
+    /**
+     * @return kolone koje se koriste u INSERT upitu
+     */
 
     @Override
     public String getKoloneZaInsert() {
         return "ulog, statusTiket, ukupnaKvota, dobitak, idRadnik, idKorisnik";
     }
 
+    /**
+     * @return vrednosti koje se unose u bazu u INSERT upitu
+     */
     @Override
     public String getVrednostiZaInsert() {
         return ulog + ", " + status + ", " + ukupnaKvota + ", " + moguciDobitak + ", " + radnik.getIdRadnik() + ", " + korisnik.getIdKorisnik();
     }
-
+    
+    /**
+     * @return vrednosti koje se azuriraju u UPDATE upitu
+     */
 
     @Override
     public String getVrednostiZaUpdate() {
@@ -180,13 +278,21 @@ public class Tiket implements Serializable, OpstiDomenskiObjekat {
         return sb.toString();
     }
 
-
+    /**
+     * @return SQL uslov za identifikaciju tiketa po ID-u
+     */
 
     @Override
     public String requeredUslov() {
         return "t.idTiket = " + idTiket;
     }
 
+    /**
+     * Formira uslov pretrage u zavisnosti od atributa tiketa.
+     * 
+     * @return SQL WHERE uslov za pretragu tiketa
+     */
+    
     @Override
     public String getUslovZaPretragu() {
         StringBuilder uslov = new StringBuilder();
@@ -226,6 +332,10 @@ public class Tiket implements Serializable, OpstiDomenskiObjekat {
     }
 
 
+    /**
+     * @return kolone koje se koriste prilikom citanja iz baze
+     */
+    
     @Override
     public String getUslov() {
         return "t.*,\n" +
@@ -236,6 +346,15 @@ public class Tiket implements Serializable, OpstiDomenskiObjekat {
                 "    u.idUtakmica AS idUtakmica, u.domacin AS domacin, u.gost AS gost, u.termin AS termin";
     }
 
+    
+    /**
+     * Konvertuje ResultSet u listu Tiket objekata.
+     * 
+     * @param rs rezultat SQL upita
+     * @return lista Tiket objekata
+     * @throws SQLException ako dodje do greske prilikom citanja iz baze
+     */
+    
     @Override
     public ArrayList<OpstiDomenskiObjekat> konvertujResultSetUListu(ResultSet rs) throws SQLException {
         Map<Integer, Tiket> mapaTiketa = new HashMap<>();
@@ -302,6 +421,15 @@ public class Tiket implements Serializable, OpstiDomenskiObjekat {
         }
         return new ArrayList<>(mapaTiketa.values());
     }
+    
+    
+    /**
+     * Konvertuje ResultSet u jedan Tiket objekat.
+     * 
+     * @param rs rezultat SQL upita
+     * @return Tiket objekat
+     * @throws SQLException ako dodje do greske prilikom citanja iz baze
+     */
     
     @Override
     public OpstiDomenskiObjekat konvertujResultSetUObjekat(ResultSet rs) throws SQLException {

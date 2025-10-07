@@ -8,12 +8,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * Predstavlja kvote za sve utakmice.
+ * Kvote su skladistene po ID utakmice i tipu opklade.
  * @author Darko
  */
 public class KvoteUtakmica {
+    
+    /**
+     * Mapiranje ID utakmice na mapu tipova opklade i njihovih kvota.
+     */
+    
     private Map<Integer, Map<TipOpklade, Double>> kvotePoUtakmici = new HashMap<>();
 
+    /**
+     * Konstruktor koji inicijalizuje kvote za sve utakmice.
+     */
+    
     public KvoteUtakmica() {
 
         dodajKvote(1, TipOpklade.POBEDA_DOMACIN, 1.5);
@@ -252,16 +262,28 @@ public class KvoteUtakmica {
 
     }
 
+    /**
+     * Dodaje kvotu za odredjenu utakmicu i tip opklade.
+     *
+     * @param idUtakmica ID utakmice
+     * @param tip Tip opklade
+     * @param kvota vrednost kvote (mora biti veca od 1)
+     */
     public void dodajKvote(int idUtakmica, TipOpklade tip, double kvota) {
-        if(kvota > 1){
+        if (kvota > 1) {
             kvotePoUtakmici.putIfAbsent(idUtakmica, new HashMap<>());
             kvotePoUtakmici.get(idUtakmica).put(tip, kvota);
-        }else{
+        } else {
             System.out.println("Kvota mora biti veca od 1.");
         }
-        
     }
 
+    /**
+     * Vraca mapu kvota za odredjenu utakmicu.
+     *
+     * @param idUtakmica ID utakmice
+     * @return mapa tipova opklade i njihovih kvota, prazna mapa ako ne postoji utakmica
+     */
     public Map<TipOpklade, Double> getKvoteZaUtakmicu(int idUtakmica) {
         return kvotePoUtakmici.getOrDefault(idUtakmica, new HashMap<>());
     }
