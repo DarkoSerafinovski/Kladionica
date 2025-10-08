@@ -121,7 +121,7 @@ public class SOIzmeniKorisnikTest {
     }
 
     @Test
-    void testPreduslov_ValidanKorisnik() {
+    void testPreduslovValidanKorisnik() {
         assertDoesNotThrow(() -> so.preduslov(validanKorisnik));
     }
     
