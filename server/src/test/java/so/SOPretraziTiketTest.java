@@ -83,7 +83,7 @@ public class SOPretraziTiketTest {
     }
     
     @Test
-    void testIzvrsiOperaciju_BacaSQLException() throws SQLException {
+    void testIzvrsiOperacijuBacaSQLException() throws SQLException {
         DBBroker dbMock = Mockito.mock(DBBroker.class);
         Mockito.doThrow(new SQLException("Greška u bazi")).when(dbMock).vratiJednog(any(Tiket.class));
 
