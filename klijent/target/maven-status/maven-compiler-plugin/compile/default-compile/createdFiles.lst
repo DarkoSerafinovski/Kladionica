@@ -17,6 +17,7 @@ dialog\PogledajTiketDialog$1.class
 forme\KreirajTiketForma$2.class
 model\KorisnikTableModel.class
 forme\TiketiForma$9.class
+json\JsonUtil.class
 forme\KlijentskaForma$1.class
 forme\KorisniciForma$12.class
 forme\KorisniciForma$5.class

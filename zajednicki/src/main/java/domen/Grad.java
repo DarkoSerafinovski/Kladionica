@@ -84,15 +84,9 @@ public class Grad implements Serializable, OpstiDomenskiObjekat {
     /**
      * Postavlja postanski broj grada.
      *
-     * @param postanskiBroj postanski broj (ne sme biti null i mora imati najmanje 2 karaktera)
+     * @param postanskiBroj postanski broj 
      */
     public void setPostanskiBroj(String postanskiBroj) {
-        if (postanskiBroj == null) {
-            throw new NullPointerException("Poštanski broj ne sme biti null.");
-        }
-        if (postanskiBroj.length() < 2) {
-            throw new IllegalArgumentException("Poštanski broj mora imati najmanje 2 karaktera.");
-        }
         this.postanskiBroj = postanskiBroj;
     }
 

@@ -44,27 +44,6 @@ public class GradTest {
             new Grad(-1, "Beograd", "11000");
         });
     }
-    
-    @Test
-    void testParametarskiKonstruktorBacaIzuzetakAkoJePostanskiBrojNull() {
-        assertThrows(NullPointerException.class, () -> {
-            new Grad(1, "Beograd", null);
-        });
-    }
-
-    @Test
-    void testParametarskiKonstruktorBacaIzuzetakAkoJePostanskiBrojPrazan() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new Grad(1, "Beograd", "");
-        });
-    }
-    
-    @Test
-    void testParametarskiKonstruktorBacaIzuzetakAkoJePostanskiBrojJedanKarakter() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new Grad(1, "Beograd", "2");
-        });
-    }
 
     // ----------  SETTERI SA VALIDACIJOM ----------
     
@@ -90,18 +69,6 @@ public class GradTest {
     void testSetPostanskiBrojValidan() {
         grad.setPostanskiBroj("21000");
         assertEquals("21000", grad.getPostanskiBroj());
-    }
-
-    @Test
-    void testSetPostanskiBrojNull() {
-        NullPointerException ex = assertThrows(NullPointerException.class, () -> grad.setPostanskiBroj(null));
-        assertEquals("Poštanski broj ne sme biti null.", ex.getMessage());
-    }
-
-    @Test
-    void testSetPostanskiBrojKraciOdDva() {
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> grad.setPostanskiBroj("1"));
-        assertEquals("Poštanski broj mora imati najmanje 2 karaktera.", ex.getMessage());
     }
 
     

@@ -265,27 +265,33 @@ public class KvoteUtakmica {
     /**
      * Dodaje kvotu za odredjenu utakmicu i tip opklade.
      *
-     * @param idUtakmica ID utakmice
-     * @param tip Tip opklade
+     * @param idUtakmica ID utakmice (mora biti veci od 0)
+     * @param tip Tip opklade (ne sme biti null)
      * @param kvota vrednost kvote (mora biti veca od 1)
      */
     public void dodajKvote(int idUtakmica, TipOpklade tip, double kvota) {
-        if (kvota > 1) {
-            kvotePoUtakmici.putIfAbsent(idUtakmica, new HashMap<>());
-            kvotePoUtakmici.get(idUtakmica).put(tip, kvota);
-        } else {
-            System.out.println("Kvota mora biti veca od 1.");
+        if (idUtakmica < 1) {
+            throw new IllegalArgumentException("ID utakmice mora biti veći od 0.");
         }
+        if (tip == null) {
+            throw new IllegalArgumentException("Tip opklade ne sme biti null.");
+        }
+        if (kvota <= 1) {
+            throw new IllegalArgumentException("Kvota mora biti veća od 1.");
+        }
+
+        kvotePoUtakmici.putIfAbsent(idUtakmica, new HashMap<>());
+        kvotePoUtakmici.get(idUtakmica).put(tip, kvota);
     }
 
     /**
      * Vraca mapu kvota za odredjenu utakmicu.
      *
      * @param idUtakmica ID utakmice
-     * @return mapa tipova opklade i njihovih kvota, prazna mapa ako ne postoji utakmica
+     * @return mapa tipova opklade i njihovih kvota, null ako ne postoji utakmica
      */
     public Map<TipOpklade, Double> getKvoteZaUtakmicu(int idUtakmica) {
-        return kvotePoUtakmici.getOrDefault(idUtakmica, new HashMap<>());
+        return kvotePoUtakmici.get(idUtakmica);
     }
 }
 

@@ -1,0 +1,54 @@
+{
+  "idTiket": 31,
+  "ulog": 1000.0,
+  "ukupnaKvota": 3.42,
+  "moguciDobitak": 3420.0,
+  "status": 0,
+  "radnik": {
+    "idRadnik": 3,
+    "ime": "Marko",
+    "prezime": "Markovic",
+    "korisnickoIme": "marko123",
+    "lozinka": "lozinka1",
+    "brojTelefona": "069304456"
+  },
+  "korisnik": {
+    "idKorisnik": 4,
+    "ime": "Petar",
+    "prezime": "Petrovic",
+    "jmbg": "2948603959688",
+    "grad": {
+      "idGrad": 2,
+      "naziv": "Novi Sad",
+      "postanskiBroj": "21000"
+    }
+  },
+  "parovi": [
+    {
+      "idPar": 0,
+      "idTiket": 31,
+      "utakmica": {
+        "idUtakmica": 3,
+        "domacin": "Bayern Munchen",
+        "gost": "Borussia Dortmund",
+        "termin": "Sep 27, 2025, 6:30:00 PM"
+      },
+      "tipOpklade": "POBEDA_DOMACIN",
+      "kvota": 1.8,
+      "redosled": 1
+    },
+    {
+      "idPar": 0,
+      "idTiket": 31,
+      "utakmica": {
+        "idUtakmica": 2,
+        "domacin": "Barcelona",
+        "gost": "Real Madrid",
+        "termin": "Sep 21, 2025, 8:45:00 PM"
+      },
+      "tipOpklade": "POBEDA_DOMACIN",
+      "kvota": 1.9,
+      "redosled": 2
+    }
+  ]
+}

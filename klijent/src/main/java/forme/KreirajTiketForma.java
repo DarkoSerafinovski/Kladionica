@@ -4,6 +4,8 @@
  */
 package forme;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import domen.Korisnik;
 import domen.KvoteUtakmica;
 import domen.Par;
@@ -11,6 +13,7 @@ import domen.Radnik;
 import domen.Tiket;
 import domen.TipOpklade;
 import domen.Utakmica;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +48,14 @@ public class KreirajTiketForma extends javax.swing.JFrame {
         tipOpkladeComboBox.setModel(new DefaultComboBoxModel<>(TipOpklade.values()));
         parTableModel = new ParTableModel(t.getParovi());
         tabelaParovi.setModel(parTableModel);
+        
+        Tiket poslednjiTiket = json.JsonUtil.ucitajTiketIzJson();
+            if (poslednjiTiket != null) {
+                System.out.println("Poslednji tiket iz JSON fajla:");
+                System.out.println(poslednjiTiket);
+            } else {
+                System.out.println("Nema prethodnog tiketa u JSON fajlu.");
+        }
     }
 
     /**
@@ -402,6 +413,9 @@ public class KreirajTiketForma extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this,
                         "Tiket je uspešno izmenjen. ID: " + tiket.getIdTiket(),
                         "Uspeh", JOptionPane.INFORMATION_MESSAGE);
+                
+                new json.JsonUtil().sacuvajTiketUJson(tiket);
+                
                 new TiketiForma(prijavljeni).setVisible(true);
                 this.dispose(); 
             } else {
@@ -560,4 +574,6 @@ public class KreirajTiketForma extends javax.swing.JFrame {
     private javax.swing.JButton uplatiTiketButton;
     private javax.swing.JComboBox<Utakmica> utakmicaComboBox;
     // End of variables declaration//GEN-END:variables
+
+    
 }

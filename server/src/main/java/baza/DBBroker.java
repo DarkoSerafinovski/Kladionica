@@ -38,6 +38,8 @@ public class DBBroker {
     }
     
 
+    
+
     public int kreiraj(OpstiDomenskiObjekat odo) throws SQLException {
         String query = "INSERT INTO " + odo.getNazivTabele() + " (" 
                      + odo.getKoloneZaInsert() + ") VALUES (" 
