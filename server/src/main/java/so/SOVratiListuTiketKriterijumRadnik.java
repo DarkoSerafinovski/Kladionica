@@ -12,20 +12,43 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * Sistemska operacija koja vraca listu tiketa iz baze podataka
+ * filtriranih po prosledjenom radniku. Omogucava pregled svih tiketa
+ * koje je odredjeni radnik otkucao.
+ * 
  * @author Darko
  */
+
 public class SOVratiListuTiketKriterijumRadnik extends AbstractSO{
 
     private List<OpstiDomenskiObjekat> lista = new ArrayList<>();
 
+    /**
+     * Vraca listu pronadjenih tiketa.
+     * 
+     * @return lista objekata tipa {@link OpstiDomenskiObjekat} koji predstavljaju tikete
+     */
+    
     public List<OpstiDomenskiObjekat> getLista() {
         return lista;
     }
 
+    /**
+     * Postavlja listu tiketa na prosledjenu vrednost.
+     * 
+     * @param lista lista objekata tipa {@link OpstiDomenskiObjekat} koja se postavlja
+     */
+    
     public void setLista(List<OpstiDomenskiObjekat> lista) {
         this.lista = lista;
     }
+    
+    /**
+     * Proverava da li je parametar instanca klase {@link Radnik}.
+     * 
+     * @param parametar objekat klase {@link Radnik} po kojem se vrsi filtriranje tiketa
+     * @throws Exception ako parametar nije validan radnik
+     */
     
     @Override
     protected void preduslov(Object parametar) throws Exception {
@@ -34,10 +57,18 @@ public class SOVratiListuTiketKriterijumRadnik extends AbstractSO{
         }
     }
 
+    /**
+     * Izvrsava pretragu tiketa u bazi podataka prema radniku.
+     * Rezultat pretrage se smesta u listu.
+     * 
+     * @param parametar objekat klase {@link Radnik} po kojem se filtrira lista tiketa
+     * @throws Exception ako dodje do greske pri pretrazi u bazi
+     */
+    
     @Override
     protected void izvrsiOperaciju(Object parametar) throws Exception {
 
-        Radnik radnik = (Radnik) parametar;  // parametar je Radnik
+        Radnik radnik = (Radnik) parametar;  
     
         Tiket tiket = new Tiket();
         tiket.setRadnik(radnik);
@@ -48,10 +79,8 @@ public class SOVratiListuTiketKriterijumRadnik extends AbstractSO{
         tiket.setMoguciDobitak(0);
         tiket.setStatus(-1);
 
-        // Poziv brokera
         List<OpstiDomenskiObjekat> lista1 = DBBroker.getInstance().pretrazi(tiket);
 
-        // Rezultat setujemo u listu iz AbstractSO (ako je imaš)
         setLista(lista1);
     }
     
