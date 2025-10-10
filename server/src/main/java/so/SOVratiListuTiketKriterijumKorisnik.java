@@ -37,7 +37,7 @@ public class SOVratiListuTiketKriterijumKorisnik extends AbstractSO{
 
     @Override
     protected void izvrsiOperaciju(Object parametar) throws Exception {
-        Korisnik k = (Korisnik) parametar;  // parametar je Radnik
+        Korisnik k = (Korisnik) parametar;  
     
         Tiket tiket = new Tiket();
         tiket.setKorisnik(k);
@@ -48,10 +48,8 @@ public class SOVratiListuTiketKriterijumKorisnik extends AbstractSO{
         tiket.setMoguciDobitak(0);
         tiket.setStatus(-1);
 
-        // Poziv brokera
         List<OpstiDomenskiObjekat> lista1 = DBBroker.getInstance().pretrazi(tiket);
 
-        // Rezultat setujemo u listu iz AbstractSO (ako je imaš)
         setLista(lista1);
     }
     

@@ -8,11 +8,23 @@ import baza.DBBroker;
 import domen.Poslovnica;
 
 /**
- *
+ * Sistemska operacija koja omogucava izmenu postojece poslovnice u bazi podataka.
+ * Pre izmene proverava se da li su svi podaci o poslovnici ispravni i popunjeni.
+ * 
  * @author Darko
  */
+
 public class SOIzmeniPoslovnica extends AbstractSO{
 
+    /**
+     * Proverava da li je prosledjeni objekat poslovnice validan za izmenu.
+     * Baca izuzetak ako je parametar null, neki od podataka nije unet ili ako nije ispravan.
+     * 
+     * @param parametar objekat klase {@link Poslovnica} koji se menja
+     * @throws Exception ako poslovnica nije validna, ako je null, ID manji ili jednak nuli,
+     *         ili ako adresa i broj telefona nisu popunjeni (null vrednost ili prazan string.
+     */
+    
     @Override
     protected void preduslov(Object parametar) throws Exception {
         Poslovnica p = (Poslovnica) parametar;
@@ -31,6 +43,12 @@ public class SOIzmeniPoslovnica extends AbstractSO{
         }
     }
 
+    /**
+     * Izvrsava operaciju izmene podataka o poslovnici u bazi.
+     * 
+     * @param parametar objekat klase {@link Poslovnica} sa novim vrednostima
+     * @throws Exception ako dodje do greske prilikom izmene u bazi podataka
+     */
 
     @Override
     protected void izvrsiOperaciju(Object parametar) throws Exception {

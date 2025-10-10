@@ -29,7 +29,7 @@ public class SOVratiListuTiketKriterijumTiket extends AbstractSO{
     @Override
     protected void preduslov(Object parametar) throws Exception {
         if(!(parametar instanceof Tiket)){
-            throw new Exception("Parametar mora biti instanca tiker.");
+            throw new Exception("Parametar mora biti instanca tiket.");
         }
     }
 
